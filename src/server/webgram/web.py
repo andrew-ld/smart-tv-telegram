@@ -14,13 +14,13 @@ class Web:
     def get_streamer(self: 'BareServer'):
         # noinspection PyAbstractClass
         class MtProtoFileStreamer(tornado.web.RequestHandler):
-            __slots__ = ['bare']
+            __slots__ = ["bare"]
             bare: 'BareServer'
 
             def write_ok_headers(self):
                 self.set_header("Content-Type", "video/mp4")
-                self.set_header('Access-Control-Allow-Origin', '*')
-                self.set_header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+                self.set_header("Access-Control-Allow-Origin", "*")
+                self.set_header("Access-Control-Allow-Methods", "GET, OPTIONS")
                 self.set_header("Access-Control-Allow-Headers", "Content-Type")
 
             async def options(self):
@@ -74,8 +74,8 @@ class Web:
 
                 self.set_status(206 if read_after else 200)
                 self.set_header("Content-Type", "video/mp4")
-                self.set_header('Content-Range', f'bytes {read_after}-{size}/{size}')
-                self.set_header('Accept-Ranges', 'bytes')
+                self.set_header("Content-Range", f"bytes {read_after}-{size}/{size}")
+                self.set_header("Accept-Ranges", "bytes")
                 self.write_ok_headers()
 
                 while offset < size:
