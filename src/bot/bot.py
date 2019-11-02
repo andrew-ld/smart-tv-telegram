@@ -83,8 +83,7 @@ class MediaController:
         device.play()
 
         update.message.reply_text(
-            f"playing {context.user_data['current_id']}\n"
-            f"to: {repr(device)}",
+            f"playing {context.user_data['current_id']}",
             reply_markup=ReplyKeyboardRemove()
         )
 
