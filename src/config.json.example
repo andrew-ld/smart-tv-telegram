@@ -3,7 +3,8 @@
   "admin_id": [123, 456],
 
   "bot": {
-    "upnp_scan_timeout": 2
+    "upnp_scan_timeout": 2,
+    "upnp_scan_workaround": true
   },
 
   "server": {

@@ -428,3 +428,8 @@ def discover(name='', ip='', timeout=1, st=SSDP_ALL, mx=3, ssdp_version=1):
                 pass
 
     return devices
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
+    print(repr(discover('', '', 5, SSDP_ALL, 1)))

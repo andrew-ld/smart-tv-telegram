@@ -93,6 +93,9 @@ class MediaController:
     def play(self, update, context: CallbackContext):
         devices = upnp.discover('', '', self.config.TIMEOUT, upnp.URN_AVTransport_Fmt, 1)
 
+        if not devices and self.config.SCAN_WORKAROUND:
+            devices = upnp.discover('', '', self.config.TIMEOUT, upnp.SSDP_ALL, 1)
+
         if not devices:
             update.message.reply_text(
                 "supported devices not found in the network",

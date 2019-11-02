@@ -7,6 +7,7 @@ class Config:
     TOKEN: str
     ADMIN: typing.List[int]
     TIMEOUT: int
+    SCAN_WORKAROUND: bool
 
     def __init__(self, config_path: str = "config.json"):
         config = json.load(open(config_path, "r"))
@@ -19,3 +20,4 @@ class Config:
                           str(config["server"]["listen_port"]) + "/watch/?mid={}"
 
         self.TIMEOUT = config["bot"]["upnp_scan_timeout"]
+        self.SCAN_WORKAROUND = config["bot"]["upnp_scan_workaround"]
