@@ -22,6 +22,7 @@ class Web:
                 self.set_header("Access-Control-Allow-Origin", "*")
                 self.set_header("Access-Control-Allow-Methods", "GET, OPTIONS")
                 self.set_header("Access-Control-Allow-Headers", "Content-Type")
+                self.set_header("transferMode.dlna.org", "Streaming")
 
             async def options(self):
                 self.set_status(200)
