@@ -76,6 +76,7 @@ class Web:
                 self.set_header("Content-Type", "video/mp4")
                 self.set_header("Content-Range", f"bytes {read_after}-{size}/{size}")
                 self.set_header("Accept-Ranges", "bytes")
+                self.set_header("Content-Length", size)
                 self.write_ok_headers()
 
                 while offset < size:
