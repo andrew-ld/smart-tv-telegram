@@ -83,7 +83,7 @@ class MediaController:
         device.play()
 
         update.message.reply_text(
-            f"playing {context.user_data['current_id']}\t"
+            f"playing {context.user_data['current_id']}\n"
             f"to: {repr(device)}",
             reply_markup=ReplyKeyboardRemove()
         )
@@ -95,8 +95,7 @@ class MediaController:
 
         if not devices:
             update.message.reply_text(
-                f"supported devices not found\n"
-                f"in the network",
+                "supported devices not found in the network",
                 reply_markup=ReplyKeyboardRemove()
             )
 
