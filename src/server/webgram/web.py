@@ -23,6 +23,8 @@ class Web:
                 self.set_header("Access-Control-Allow-Methods", "GET, OPTIONS")
                 self.set_header("Access-Control-Allow-Headers", "Content-Type")
                 self.set_header("transferMode.dlna.org", "Streaming")
+                self.set_header("TimeSeekRange.dlna.org", "npt=0.00-")
+                self.set_header("contentFeatures.dlna.org", "DLNA.ORG_OP=01;DLNA.ORG_CI=0")
 
             async def options(self):
                 self.set_status(200)
