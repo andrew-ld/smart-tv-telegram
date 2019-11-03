@@ -10,11 +10,10 @@ if typing.TYPE_CHECKING:
     from . import BareServer
 
 
-RANGE_REGEX = re.compile(r"bytes=([0-9]+)-")
-BLOCK_SIZE = 1024 * 1024
-
-
 class Tools:
+    RANGE_REGEX = re.compile(r"bytes=([0-9]+)-")
+    BLOCK_SIZE = 1024 * 1024
+
     def iter_download(self: 'BareServer', message: Message, offset: int):
         session = self.client.media_sessions.get(
             message.media.document.dc_id
@@ -23,7 +22,7 @@ class Tools:
         part = session.send(
             GetFile(
                 offset=offset,
-                limit=BLOCK_SIZE,
+                limit=self.BLOCK_SIZE,
                 location=InputDocumentFileLocation(
                     id=message.media.document.id,
                     access_hash=message.media.document.access_hash,
@@ -48,7 +47,7 @@ class Tools:
         return res.messages[0]
 
     def parse_http_range(self, header: str):
-        matches = RANGE_REGEX.search(header)
+        matches = self.RANGE_REGEX.search(header)
 
         if matches is None:
             return True, 400
@@ -59,7 +58,7 @@ class Tools:
             return True, 400
 
         offset = int(offset)
-        safe_offset = (offset // BLOCK_SIZE) * BLOCK_SIZE
+        safe_offset = (offset // self.BLOCK_SIZE) * self.BLOCK_SIZE
         data_to_skip = offset - safe_offset
 
         return False, safe_offset, data_to_skip

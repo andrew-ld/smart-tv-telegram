@@ -18,7 +18,7 @@ class Web:
             bare: 'BareServer'
 
             def write_ok_headers(self):
-                self.set_header("Content-Type", "video/mp4")
+                self.set_header("Content-Type", "video/mpeg")
                 self.set_header("Access-Control-Allow-Origin", "*")
                 self.set_header("Access-Control-Allow-Methods", "GET, OPTIONS")
                 self.set_header("Access-Control-Allow-Headers", "Content-Type")
@@ -57,6 +57,10 @@ class Web:
 
                     else:
                         offset, data_to_skip, *_ = data
+
+                if data_to_skip > self.bare.BLOCK_SIZE:
+                    self.set_status(500)
+                    return await self.finish()
 
                 message = self.bare.get_message(int(mid))
 
