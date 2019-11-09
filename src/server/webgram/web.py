@@ -106,5 +106,11 @@ class Web:
                     except tornado.iostream.StreamClosedError:
                         break
 
+                try:
+                    await self.request.connection.stream.read_bytes(1, True)
+                    await self.finish()
+                except tornado.iostream.StreamClosedError:
+                    pass
+
         MtProtoFileStreamer.bare = self
         return MtProtoFileStreamer
