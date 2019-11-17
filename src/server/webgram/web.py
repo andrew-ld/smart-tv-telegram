@@ -80,7 +80,6 @@ class Web:
                     return await self.finish()
 
                 self.set_status(206 if read_after else 200)
-                self.set_header("Content-Type", "video/mp4")
                 self.set_header("Content-Range", f"bytes {read_after}-{size}/{size}")
                 self.set_header("Accept-Ranges", "bytes")
                 self.set_header("Content-Length", size)

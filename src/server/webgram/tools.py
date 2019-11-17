@@ -1,5 +1,6 @@
 import typing
 import re
+import functools
 
 from pyrogram.api.functions.messages import GetMessages
 from pyrogram.api.functions.upload import GetFile
@@ -34,6 +35,7 @@ class Tools:
 
         return part, offset + len(part)
 
+    @functools.lru_cache()
     def get_message(self: 'BareServer', mid: int) -> Message:
         res = self.client.send(
             GetMessages(
