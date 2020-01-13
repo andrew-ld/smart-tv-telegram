@@ -18,7 +18,8 @@ class ChromecastDevice(Device):
         pass
 
     def play(self, url: str):
-        self._device.play_media(url, 'video/mp4')
+        self._device.media_controller.play_media(url, 'video/mp4')
+        self._device.media_controller.play()
 
 
 class ChromecastDeviceFinder(DeviceFinder):
