@@ -25,5 +25,5 @@ class ChromecastDeviceFinder(DeviceFinder):
     def __new__(cls, timeout: int = None, hacky: bool = False) -> typing.List[Device]:
         return [
             ChromecastDevice(device)
-            for device in pychromecast.get_chromecasts(timeout=timeout, tries=0)
+            for device in pychromecast.get_chromecasts(timeout=timeout)
         ]
