@@ -108,4 +108,7 @@ venv.bak/
 .venv/
 
 # config
-src/config.json
+config.json
+*.session
+*.keys
+*.session-journal

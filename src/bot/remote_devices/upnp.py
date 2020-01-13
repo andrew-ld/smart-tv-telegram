@@ -123,10 +123,10 @@ def _xpath(d, path):
         attr = tag_attr[1] if len(tag_attr) > 1 else ''
 
         if attr:
-            a, aval = attr.split('=')
+            a, val = attr.split('=')
 
             for s in d[tag]:
-                if s[a] == [aval]:
+                if s[a] == [val]:
                     d = s
                     break
         else:
@@ -206,6 +206,7 @@ def _get_serve_ip(target_ip, target_port=80):
     return my_ip
 
 
+# noinspection PyMethodMayBeStatic
 class DlnapDevice:
     # noinspection PyBroadException
     def __init__(self, raw, ip):
@@ -267,14 +268,10 @@ class DlnapDevice:
         for tag, value in data.items():
             fields += '<{tag}>{value}</{tag}>'.format(tag=tag, value=value)
 
-        payload = """<?xml version="1.0" encoding="utf-8"?>
-         <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
-            <s:Body>
-               <u:{action} xmlns:u="{urn}">
-                  {fields}
-               </u:{action}>
-            </s:Body>
-         </s:Envelope>""".format(action=action, urn=urn, fields=fields)
+        payload = """<?xml version="1.0" encoding="utf-8"?> <s:Envelope 
+        xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" 
+        s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"> <s:Body> <u:{action} xmlns:u="{urn}"> {fields} 
+        </u:{action}> </s:Body> </s:Envelope>""".format(action=action, urn=urn, fields=fields)
         return payload
 
     def _create_packet(self, action, data):

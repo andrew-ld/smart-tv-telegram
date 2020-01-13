@@ -4,7 +4,8 @@ from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ConversationHandler, CommandHandler, Updater, MessageHandler, Filters, CallbackContext
 
 from . import config
-from . import upnp
+from .remote_devices import ChromecastDeviceFinder, UpnpDeviceFinder, Device
+
 
 PLAY_NEW_FILE, DEVICE_SELECT = range(2)
 
@@ -16,6 +17,7 @@ NEW_FILE_KEYBOARD = ReplyKeyboardMarkup(
 )
 
 
+# noinspection PyMethodMayBeStatic
 class MediaController:
     config: config.Config
     conv_handler: ConversationHandler
@@ -58,7 +60,7 @@ class MediaController:
     def play_selected(self, update, context: CallbackContext):
         try:
 
-            device = next(
+            device: Device = next(
                 device
                 for device in context.user_data["devices"]
                 if repr(device) == update.message.text
@@ -74,13 +76,11 @@ class MediaController:
 
         device.stop()
 
-        device.set_current_media(
-            url=self.config.STREAM_URL.format(
+        device.play(
+            self.config.STREAM_URL.format(
                 context.user_data["current_id"]
             )
         )
-
-        device.play()
 
         update.message.reply_text(
             f"playing {context.user_data['current_id']}",
@@ -90,10 +90,10 @@ class MediaController:
         return ConversationHandler.END
 
     def play(self, update, context: CallbackContext):
-        devices = upnp.discover('', '', self.config.TIMEOUT, upnp.URN_AVTransport_Fmt, 1)
+        devices = UpnpDeviceFinder(self.config.TIMEOUT, self.config.SCAN_WORKAROUND)
 
-        if not devices and self.config.SCAN_WORKAROUND:
-            devices = upnp.discover('', '', self.config.TIMEOUT, upnp.SSDP_ALL, 1)
+        if self.config.CHROMECAST:
+            devices.extend(ChromecastDeviceFinder(self.config.TIMEOUT))
 
         if not devices:
             update.message.reply_text(

@@ -4,7 +4,8 @@
 
   "bot": {
     "upnp_scan_timeout": 2,
-    "upnp_scan_workaround": true
+    "upnp_scan_workaround": true,
+    "chromecast_support": true
   },
 
   "server": {
