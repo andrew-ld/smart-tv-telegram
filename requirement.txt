@@ -3,3 +3,6 @@ python-telegram-bot==12.2.0
 TgCrypto==1.2.0
 tornado==6.0.3
 PyChromecast==4.1.0
+
+# https://github.com/balloob/pychromecast/issues/332#issuecomment-571615173
+zeroconf==0.24.3
