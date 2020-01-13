@@ -19,7 +19,7 @@ class ChromecastDevice(Device):
 
     def play(self, url: str):
         self._device.media_controller.play_media(url, 'video/mp4')
-        self._device.media_controller.play()
+        self._device.media_controller.block_until_active()
 
 
 class ChromecastDeviceFinder(DeviceFinder):
