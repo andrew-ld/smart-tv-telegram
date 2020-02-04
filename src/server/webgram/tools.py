@@ -1,11 +1,14 @@
 import typing
 import re
 import functools
+import time
 
 from pyrogram.api.functions.messages import GetMessages
 from pyrogram.api.functions.upload import GetFile
 from pyrogram.api.types.message import Message
 from pyrogram.api.types import InputDocumentFileLocation, InputMessageID
+from pyrogram.errors.exceptions.flood_420 import FloodWait
+
 
 if typing.TYPE_CHECKING:
     from . import BareServer
@@ -20,20 +23,29 @@ class Tools:
             message.media.document.dc_id
         )
 
-        part = session.send(
-            GetFile(
-                offset=offset,
-                limit=self.BLOCK_SIZE,
-                location=InputDocumentFileLocation(
-                    id=message.media.document.id,
-                    access_hash=message.media.document.access_hash,
-                    file_reference=message.media.document.file_reference,
-                    thumb_size=""
-                ),
-            )
-        ).bytes
+        while True:
 
-        return part, offset + len(part)
+            try:
+
+                part = session.send(
+                    GetFile(
+                        offset=offset,
+                        limit=self.BLOCK_SIZE,
+                        location=InputDocumentFileLocation(
+                            id=message.media.document.id,
+                            access_hash=message.media.document.access_hash,
+                            file_reference=b"",  # bot can use empty fr
+                            thumb_size=""
+                        ),
+                    )
+                ).bytes
+
+            # server is overloaded
+            except FloodWait:
+                time.sleep(0.2)
+                continue
+
+            return part, offset + len(part)
 
     @functools.lru_cache()
     def get_message(self: 'BareServer', mid: int) -> Message:
