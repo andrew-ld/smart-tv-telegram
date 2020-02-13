@@ -17,8 +17,8 @@ class ChromecastDevice(Device):
     def stop(self):
         pass
 
-    def play(self, url: str):
-        self._device.media_controller.play_media(url, 'video/mp4')
+    def play(self, url: str, title: str):
+        self._device.media_controller.play_media(url, "video/mp4", title=title)
         self._device.media_controller.block_until_active()
 
 

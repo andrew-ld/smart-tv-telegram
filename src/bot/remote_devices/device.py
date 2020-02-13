@@ -15,7 +15,7 @@ class Device(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def play(self, url: str):
+    def play(self, url: str, title: str):
         raise NotImplementedError
 
     def __repr__(self):

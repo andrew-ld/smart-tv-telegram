@@ -79,7 +79,8 @@ class MediaController:
         device.play(
             self.config.STREAM_URL.format(
                 context.user_data["current_id"]
-            )
+            ),
+            context.user_data["file_name"]
         )
 
         update.message.reply_text(
@@ -122,6 +123,7 @@ class MediaController:
             return ConversationHandler.END
 
         context.user_data["current_id"] = update.message.message_id
+        context.user_data["file_name"] = update.message.document.file_name
 
         update.message.reply_text(
             "press a button",

@@ -15,8 +15,8 @@ class UpnpDevice(Device):
     def stop(self):
         self._device.stop()
 
-    def play(self, url: str):
-        self._device.set_current_media(url)
+    def play(self, url: str, title: str):
+        self._device.set_current_media(url, title)
         self._device.play()
 
 
