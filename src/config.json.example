@@ -3,20 +3,27 @@
   "admin_id": [123, 456],
 
   "bot": {
-    "upnp_scan_timeout": 2,
-    "upnp_scan_workaround": true,
-    "chromecast_support": true
+    "upnp": {
+        "enabled": true,
+        "timeout": 2,
+        "workaround": false
+    },
+
+    "chromecast": {
+        "enabled": true,
+        "timeout": 2,
+        "workaround": false
+    }
   },
 
   "server": {
     "listen_host": "10.0.0.1",
     "listen_port": 8538,
+    "session_name": "controller",
 
     "api": {
       "app_id": 6,
       "app_hash": "eb06d4abfb49dc3eeb1aeb98ae0f581e"
-    },
-
-    "session_name": "controller"
+    }
   }
 }

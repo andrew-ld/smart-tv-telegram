@@ -6,9 +6,15 @@ class Config:
     STREAM_URL: str
     TOKEN: str
     ADMIN: typing.List[int]
-    TIMEOUT: int
-    SCAN_WORKAROUND: bool
-    CHROMECAST: bool
+
+    CHROMECAST_ENABLED: bool
+    UPNP_ENABLED: bool
+
+    CHROMECAST_TIMEOUT: int
+    UPNP_TIMEOUT: int
+
+    CHROMECAST_WORKAROUND: bool
+    UPNP_WORKAROUND: bool
 
     def __init__(self, config_path: str = "config.json"):
         config = json.load(open(config_path, "r"))
@@ -20,6 +26,11 @@ class Config:
                           config["server"]["listen_host"] + ":" + \
                           str(config["server"]["listen_port"]) + "/watch/?mid={}"
 
-        self.TIMEOUT = config["bot"]["upnp_scan_timeout"]
-        self.SCAN_WORKAROUND = config["bot"]["upnp_scan_workaround"]
-        self.CHROMECAST = config["bot"]["chromecast_support"]
+        self.CHROMECAST_ENABLED = config["bot"]["chromecast"]["enabled"]
+        self.UPNP_ENABLED = config["bot"]["upnp"]["enabled"]
+
+        self.CHROMECAST_TIMEOUT = config["bot"]["chromecast"]["timeout"]
+        self.UPNP_TIMEOUT = config["bot"]["upnp"]["timeout"]
+
+        self.CHROMECAST_WORKAROUND = config["bot"]["chromecast"]["workaround"]
+        self.UPNP_WORKAROUND = config["bot"]["upnp"]["workaround"]

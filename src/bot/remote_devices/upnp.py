@@ -250,7 +250,7 @@ class DlnapDevice:
                     self.rendering_control_url))
 
             self.has_av_transport = self.control_url is not None
-            self.__logger.info('=> Initialization completed'.format(ip))
+            self.__logger.info('{} => Initialization completed'.format(ip))
 
         except:
             self.__logger.warning(

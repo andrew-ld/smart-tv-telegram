@@ -90,10 +90,13 @@ class MediaController:
         return ConversationHandler.END
 
     def play(self, update, context: CallbackContext):
-        devices = UpnpDeviceFinder(self.config.TIMEOUT, self.config.SCAN_WORKAROUND)
+        devices = []
 
-        if self.config.CHROMECAST:
-            devices.extend(ChromecastDeviceFinder(self.config.TIMEOUT))
+        if self.config.UPNP_ENABLED:
+            devices.extend(UpnpDeviceFinder(self.config.UPNP_TIMEOUT, self.config.UPNP_WORKAROUND))
+
+        if self.config.CHROMECAST_ENABLED:
+            devices.extend(ChromecastDeviceFinder(self.config.CHROMECAST_TIMEOUT, self.config.CHROMECAST_WORKAROUND))
 
         if not devices:
             update.message.reply_text(
@@ -105,12 +108,10 @@ class MediaController:
 
         update.message.reply_text(
             f"select device",
-            reply_markup=ReplyKeyboardMarkup(
-                *(
-                    [[repr(device)]]
-                    for device in devices
-                )
-            )
+            reply_markup=ReplyKeyboardMarkup([
+                [repr(device)]
+                for device in devices
+            ])
         )
 
         context.user_data["devices"] = devices
