@@ -44,13 +44,11 @@ ROOT_PAYLOAD = """
 <?xml version="1.0" encoding="utf-8"?> 
 <s:Envelope 
     xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" 
-    s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+    s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"> 
     <s:Body> 
-        <u:{action} xmlns:u="{urn}">
-            {fields} 
-        </u:{action}>
-    </s:Body>
-</s:Envelope>"
+        <u:{action} xmlns:u="{urn}"> {fields} </u:{action}> 
+    </s:Body> 
+</s:Envelope>
 """
 
 
@@ -216,8 +214,10 @@ def _send_tcp(to, payload):
 
 def _get_location_url(raw):
     t = re.findall(r"\n(?i)location:\s*(.*)\r\s*", raw, re.M)
-    if len(t) > 0:
+
+    if t:
         return t[0]
+
     return ""
 
 
@@ -235,9 +235,7 @@ def _get_serve_ip(target_ip, target_port=80):
     return my_ip
 
 
-# noinspection PyMethodMayBeStatic
 class DlnapDevice:
-    # noinspection PyBroadException
     def __init__(self, raw, ip):
         self.__logger = logging.getLogger(self.__class__.__name__)
         self.__logger.info("=> New DlnapDevice (ip = {}) initialization..".format(ip))
@@ -267,20 +265,16 @@ class DlnapDevice:
             self.name = _get_friendly_name(self.__desc_xml)
             self.__logger.info("friendlyName: {}".format(self.name))
 
-            self.control_url = _get_control_url(
-                self.__desc_xml, URN_AVTransport)
+            self.control_url = _get_control_url(self.__desc_xml, URN_AVTransport)
             self.__logger.info("control_url: {}".format(self.control_url))
 
-            self.rendering_control_url = _get_control_url(
-                self.__desc_xml, URN_RenderingControl)
-            self.__logger.info(
-                "rendering_control_url: {}".format(
-                    self.rendering_control_url))
+            self.rendering_control_url = _get_control_url(self.__desc_xml, URN_RenderingControl)
+            self.__logger.info("rendering_control_url: {}".format(self.rendering_control_url))
 
             self.has_av_transport = self.control_url is not None
             self.__logger.info("{} => Initialization completed".format(ip))
 
-        except:
+        except IOError:
             self.__logger.warning(
                 "DlnapDevice (ip = {}) init exception:\n{}".format(
                     ip, traceback.format_exc()))
@@ -291,7 +285,8 @@ class DlnapDevice:
     def __eq__(self, d):
         return self.name == d.name and self.ip == d.ip
 
-    def _payload_from_template(self, action, data, urn):
+    @staticmethod
+    def _payload_from_template(action, data, urn):
         fields = "".join(
             "<{tag}>{value}</{tag}>".format(tag=tag, value=value)
             for tag, value in data.items()
