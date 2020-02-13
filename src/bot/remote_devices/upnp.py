@@ -13,6 +13,8 @@ import traceback
 
 from contextlib import contextmanager
 from urllib.request import urlopen
+from xml.sax.saxutils import escape
+
 
 SSDP_GROUP = ("239.255.255.250", 1900)
 URN_AVTransport = "urn:schemas-upnp-org:service:AVTransport:1"
@@ -322,11 +324,11 @@ class DlnapDevice:
         self.__logger.debug(packet)
         return packet
 
-    def set_current_media(self, url, title: str = "", instance_id=0):
+    def set_current_media(self, url: str, title: str = "", instance_id=0):
         packet = self._create_packet("SetAVTransportURI", {
             "InstanceID": instance_id,
-            "CurrentURI": url,
-            "CurrentURIMetaData": DDL_METADATA.format(title=title)
+            "CurrentURI": escape(url),
+            "CurrentURIMetaData": escape(DDL_METADATA.format(title=escape(title)))
         })
 
         _send_tcp((self.ip, self.port), packet)
