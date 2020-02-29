@@ -106,7 +106,6 @@ class Web:
                         break
 
                 try:
-                    await self.request.connection.stream.read_bytes(1, True)
                     await self.finish()
                 except tornado.iostream.StreamClosedError:
                     pass
