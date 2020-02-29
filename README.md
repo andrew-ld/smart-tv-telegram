@@ -1,18 +1,65 @@
 # smart-tv-telegram
-wtf?
-- this bot permit to stream document from telegram over http
-- this bot permit to control upnp devices for stream videos
-- this bot is opensource
+A Telegram Bot to stream content on your smart TV (also Chromecast, FireTV and other UPnP device)
 
-# now with chromecast support
-- can enable it on config.json on chromecast_support
-- it's experimental, not have a physical device for real life test
+## Feature
+- Streaming, the bot will not have to download the entire file before playing it on your device
+- You can play anything if your device has the right codec
+- You can streaming on any device that supports UPnP (AVTransport)
+- Chromecast support
+- Streaming over HTTP
 
-# how-to setup
-- install python deps from requirement.txt
-- rename config.json.example to config.json
-- edit config.json, change token, ip address and admin list
+Note: Chromecast (1st, 2nd and 3rd Gen.) [only supports H.264 and VP8 video codecs](https://developers.google.com/cast/docs/media#video_codecs)
 
-# this is a fork?
-yes but no, original idea:  
-https://github.com/andrew-ld/webgram 
+Note: Most LG TVs with WebOS have an incorrect UPnP implementation, throw it in the trash and buy a new TV
+
+## How-to setup
+Make sure you have an updated version of python, only the latest version will be supported
+
+(currently it also works on Python 3.6)
+
+- Download the repository
+- Install python dependencies from requirement.txt
+- Copy config.json.example to config.json
+- Edit config.json (`token`, `listen_host` with your local IP and `admin_id` with your user_id)
+
+```bash
+git clone https://github.com/andrew-ld/smart-tv-telegram
+cd smart-tv-telegram
+pip3 install -r requirement.txt
+cd src
+cp config.json.example config.json
+nano config.json
+```
+
+## Troubleshooting
+
+**Q:** I'm having problems installing _cryptography_ with pip3, how can I install it?
+
+**A:** Make sure you've installed [these dependencies](https://cryptography.io/en/latest/installation/#building-cryptography-on-linux)
+
+##
+**Q:** How do I get a token?
+
+**A:** From [@BotFather](https://telegram.me/BotFather)
+##
+**Q:** How do I set up admins?
+
+**A:** You have to enter your user_id, there are many ways to get it, the easiest is to use [@getuseridbot](https://telegram.me/getuseridbot)
+##
+**Q:** How do I get an app_id and app_hash?
+
+**A:** https://core.telegram.org/api/obtaining_api_id#obtaining-api-id
+##
+**Q:** The video keeps freezing
+
+**A:** Check the video bitrate, this bot supports maximum 2Mb/s
+##
+**Q:** The bot cannot find supported devices
+
+**A:**
+- Check if your router has UPnP enabled
+- Try to enable workaround in config.json (This parameter requests all devices from the router instead of only devices with AVTransport)
+- Check your firewall, in extreme case can try to reset iptables with `sudo iptables -F`
+- Also make sure you have devices that support AVTransport with 
+
+`gssdp-discover -t urn: schemas-upnp-org: service: AVTransport: 1` or `gssdp-discover`
