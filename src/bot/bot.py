@@ -129,7 +129,6 @@ class MediaController:
             return ConversationHandler.END
 
         context.user_data["current_id"] = update.message.message_id
-        context.user_data["file_name"] = update.message.document.file_name
 
         if (not (update.message.document is None)) and (not (update.message.document.file_name is None)):
             context.user_data["file_name"] = update.message.document.file_name
