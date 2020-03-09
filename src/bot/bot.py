@@ -11,7 +11,7 @@ PLAY_NEW_FILE, DEVICE_SELECT = range(2)
 
 NEW_FILE_KEYBOARD = ReplyKeyboardMarkup(
     [
-        ["play", "cancel"]
+        ["Play \u25B6", "Cancel \u274C"]
     ],
     one_time_keyboard=True
 )
@@ -30,12 +30,17 @@ class MediaController:
             entry_points=[
                 CommandHandler("start", self.start),
                 MessageHandler(Filters.document, self.new_movie),
+                MessageHandler(Filters.video, self.new_movie),
+                MessageHandler(Filters.audio, self.new_movie),
+                MessageHandler(Filters.animation, self.new_movie),
+                MessageHandler(Filters.voice, self.new_movie),
+                MessageHandler(Filters.video_note, self.new_movie),
             ],
 
             states={
                 PLAY_NEW_FILE: [
-                    MessageHandler(Filters.regex("play"), self.play),
-                    MessageHandler(Filters.regex("cancel"), self.cancel),
+                    MessageHandler(Filters.regex("Play \u25B6"), self.play),
+                    MessageHandler(Filters.regex("Cancel \u274C"), self.cancel),
                 ],
 
                 DEVICE_SELECT: [
@@ -52,7 +57,7 @@ class MediaController:
 
     def cancel(self, update, *_):
         update.message.reply_text(
-            "file ignored!"
+            "File ignored!"
         )
 
         return ConversationHandler.END
@@ -68,7 +73,7 @@ class MediaController:
 
         except StopIteration:
             update.message.reply_text(
-                "wrong device",
+                "Wrong device",
                 reply_markup=ReplyKeyboardRemove()
             )
 
@@ -84,7 +89,7 @@ class MediaController:
         )
 
         update.message.reply_text(
-            f"playing {context.user_data['current_id']}",
+            f"Playing \nID: {context.user_data['current_id']}",
             reply_markup=ReplyKeyboardRemove()
         )
 
@@ -101,18 +106,19 @@ class MediaController:
 
         if not devices:
             update.message.reply_text(
-                "supported devices not found in the network",
+                "Supported devices not found in the network",
                 reply_markup=ReplyKeyboardRemove()
             )
 
             return ConversationHandler.END
 
         update.message.reply_text(
-            f"select device",
+            f"Select a device",
             reply_markup=ReplyKeyboardMarkup([
                 [repr(device)]
                 for device in devices
-            ])
+            ]),
+            one_time_keyboard=True
         )
 
         context.user_data["devices"] = devices
@@ -125,15 +131,44 @@ class MediaController:
         context.user_data["current_id"] = update.message.message_id
         context.user_data["file_name"] = update.message.document.file_name
 
+        if (not (update.message.document is None)) and (not (update.message.document.file_name is None)):
+            context.user_data["file_name"] = update.message.document.file_name
+        else:
+            context.user_data["file_name"] = ''
+
+        if (not (update.message.audio is None)) or (not (update.message.voice is None)):
+            context.user_data["file_name"] = ''
+
+        # metadata audio not working
+        '''
+        if not (update.message.audio is None):
+            context.user_data["media_type"] = 'audio'
+            if not (update.message.audio.title is None):
+                context.user_data["file_name"] = update.message.audio.title
+            elif not (update.message.audio.file_name is None):
+                context.user_data["file_name"] = update.message.audio.file_name
+            else: 
+                context.user_data["file_name"] = ''
+        elif not (update.message.voice is None):
+            context.user_data["media_type"] = 'audio'
+            context.user_data["file_name"] = 'Voice'
+        else:
+            context.user_data["media_type"] = 'video'
+        '''
+
         update.message.reply_text(
-            "press a button",
+            "Press a button",
             reply_markup=NEW_FILE_KEYBOARD
         )
 
         return PLAY_NEW_FILE
 
     def start(self, update, *_ignored):
-        update.message.reply_text("hello!")
+        if update.message.chat_id not in self.config.ADMIN:
+            update.message.reply_text("Unauthorized")
+            return ConversationHandler.END
+
+        update.message.reply_text("Send a media")
 
 
 def main():
