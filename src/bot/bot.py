@@ -138,23 +138,6 @@ class MediaController:
         if (not (update.message.audio is None)) or (not (update.message.voice is None)):
             context.user_data["file_name"] = ''
 
-        # metadata audio not working
-        '''
-        if not (update.message.audio is None):
-            context.user_data["media_type"] = 'audio'
-            if not (update.message.audio.title is None):
-                context.user_data["file_name"] = update.message.audio.title
-            elif not (update.message.audio.file_name is None):
-                context.user_data["file_name"] = update.message.audio.file_name
-            else: 
-                context.user_data["file_name"] = ''
-        elif not (update.message.voice is None):
-            context.user_data["media_type"] = 'audio'
-            context.user_data["file_name"] = 'Voice'
-        else:
-            context.user_data["media_type"] = 'video'
-        '''
-
         update.message.reply_text(
             "Press a button",
             reply_markup=NEW_FILE_KEYBOARD
