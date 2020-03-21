@@ -62,4 +62,4 @@ nano config.json
 - Check your firewall, in extreme case can try to reset iptables with `sudo iptables -F`
 - Also make sure you have devices that support AVTransport with 
 
-`gssdp-discover -t urn: schemas-upnp-org: service: AVTransport: 1` or `gssdp-discover`
+`gssdp-discover -t urn:schemas-upnp-org:service:AVTransport:1` or `gssdp-discover`
