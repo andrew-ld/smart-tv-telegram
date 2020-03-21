@@ -18,17 +18,35 @@ Make sure you have an updated version of python, only the latest version will be
 (currently it also works on Python 3.6)
 
 - Download the repository
-- Install python dependencies from requirement.txt
+- Install python dependencies from requirements.txt
 - Copy config.json.example to config.json
 - Edit config.json (`token`, `listen_host` with your local IP and `admin_id` with your user_id)
 
 ```bash
 git clone https://github.com/andrew-ld/smart-tv-telegram
 cd smart-tv-telegram
-pip3 install -r requirement.txt
+pip3 install -r requirements.txt
 cd src
 cp config.json.example config.json
 nano config.json
+```
+
+## How-to setup (Docker)
+
+- Download [Dockerfile](https://raw.githubusercontent.com/andrew-ld/smart-tv-telegram/master/Dockerfile) and [config.json.example](https://raw.githubusercontent.com/andrew-ld/smart-tv-telegram/master/src/config.json.example)
+- Rename config.json.example to config.json
+- Edit config.json (`token`, `listen_host` with your local IP and `admin_id` with your user_id)
+- Set `"session_name": "sessions/smarttv"` in config.json (You can change the name as long as it matches the docker volume)
+- Build Docker
+- Start Docker
+
+```bash
+wget https://raw.githubusercontent.com/andrew-ld/smart-tv-telegram/master/Dockerfile
+wget https://raw.githubusercontent.com/andrew-ld/smart-tv-telegram/master/src/config.json.example
+mv config.json.example config.json
+nano config.json
+docker image build -t smart-tv-telegram:latest .
+docker run --network host -v "$(pwd)/config.json:/srv/smart-tv-telegram/src/config.json:ro" -v "$(pwd)/sessions:/srv/smart-tv-telegram/src/sessions" -d smart-tv-telegram:latest
 ```
 
 ## Troubleshooting
@@ -62,4 +80,4 @@ nano config.json
 - Check your firewall, in extreme case can try to reset iptables with `sudo iptables -F`
 - Also make sure you have devices that support AVTransport with 
 
-`gssdp-discover -t urn:schemas-upnp-org:service:AVTransport:1` or `gssdp-discover`
+`gssdp-discover -t urn: schemas-upnp-org: service: AVTransport: 1` or `gssdp-discover`
