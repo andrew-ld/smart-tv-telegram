@@ -40,7 +40,7 @@ class Config:
         self._chromecast_enabled = bool(config["discovery"]["chromecast_enabled"])
 
         if self._chromecast_enabled:
-            self._chromecast_scan_timeout = bool(config["discovery"]["chromecast_scan_timeout"])
+            self._chromecast_scan_timeout = int(config["discovery"]["chromecast_scan_timeout"])
 
         self._admins = ast.literal_eval(config["bot"]["admins"])
         self._block_size = int(config["bot"]["block_size"])

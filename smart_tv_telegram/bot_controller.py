@@ -64,7 +64,7 @@ class BotController:
             await message.reply("wrong device")
             return
 
-        url = f"http://{self._config._listen_host}:{self._config.listen_port}/stream/{msg_id}"
+        url = f"http://{self._config.listen_host}:{self._config.listen_port}/stream/{msg_id}"
         play = functools.partial(device.play, url, filename)
         await self._loop.run_in_executor(self._pool, play)
 
