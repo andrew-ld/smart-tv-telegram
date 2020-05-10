@@ -21,7 +21,7 @@ class MtprotoController:
 
     def __init__(self, config: Config):
         self._config = config
-        self._client = pyrogram.Client(__package__, config.api_id, config.api_hash, bot_token=config.token)
+        self._client = pyrogram.Client(config.session_name, config.api_id, config.api_hash, bot_token=config.token)
 
     def register(self, handler: Handler):
         self._client.add_handler(handler)
@@ -47,7 +47,7 @@ class MtprotoController:
 
         config = await self._client.send(GetConfig())
         dc_ids = [x.id for x in config.dc_options]
-        keys_path = __package__ + ".keys"
+        keys_path = self._config.session_name + ".keys"
 
         if os.path.exists(keys_path):
             keys = pickle.load(open(keys_path, "rb"))

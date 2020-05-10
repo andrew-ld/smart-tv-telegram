@@ -8,6 +8,7 @@ class Config:
     _api_id: int
     _api_hash: str
     _token: str
+    _session_name: str
 
     _listen_host: str
     _listen_port: int
@@ -28,6 +29,7 @@ class Config:
         self._api_id = int(config["mtproto"]["api_id"])
         self._api_hash = str(config["mtproto"]["api_hash"])
         self._token = str(config["mtproto"]["token"])
+        self._session_name = str(config["mtproto"]["session_name"])
 
         self._listen_port = int(config["http"]["listen_port"])
         self._listen_host = str(config["http"]["listen_host"])
@@ -62,6 +64,10 @@ class Config:
     @property
     def token(self) -> str:
         return self._token
+
+    @property
+    def session_name(self) -> str:
+        return self._session_name
 
     @property
     def listen_host(self) -> str:

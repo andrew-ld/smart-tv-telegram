@@ -16,7 +16,7 @@ https://github.com/pyrogram/pyrogram/archive/asyncio-dev.zip
 PySocks==1.7.1
 requests==2.23.0
 six==1.14.0
-TgCrypto==1.2.1
+TgCrypto==1.2.0
 urllib3==1.25.9
 yarl==1.4.2
 zeroconf==0.26.1
