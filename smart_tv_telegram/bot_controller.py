@@ -1,6 +1,3 @@
-import asyncio
-import concurrent.futures
-import functools
 import typing
 
 from pyrogram import Message, MessageHandler, Filters, ReplyKeyboardMarkup, KeyboardButton, Client, ReplyKeyboardRemove
@@ -14,15 +11,11 @@ class BotController:
     _config: Config
     _mtproto: MtprotoController
     _states: typing.Dict[int, typing.Tuple[str, typing.Any]]
-    _pool: concurrent.futures.ThreadPoolExecutor
-    _loop: asyncio.AbstractEventLoop
 
     def __init__(self, mtproto: MtprotoController, config: Config):
         self._config = config
         self._mtproto = mtproto
         self._states = {}
-        self._loop = asyncio.get_event_loop()
-        self._pool = concurrent.futures.ThreadPoolExecutor()
 
     def _get_state(self, message: Message) -> typing.Tuple[typing.Union[bool, str], typing.Tuple[typing.Any]]:
         user_id = message.from_user.id
@@ -71,10 +64,8 @@ class BotController:
             await message.reply("Wrong device")
             return
 
-        url = f"http://{self._config.listen_host}:{self._config.listen_port}/stream/{msg_id}"
-        play = functools.partial(device.play, url, filename)
-        await self._loop.run_in_executor(self._pool, play)
-
+        await device.stop()
+        await device.play(f"http://{self._config.listen_host}:{self._config.listen_port}/stream/{msg_id}", filename)
         await message.reply(f"Playing ID: {msg_id}", reply_markup=ReplyKeyboardRemove())
 
     # noinspection PyUnusedLocal
@@ -82,12 +73,11 @@ class BotController:
         devices = []
 
         if self._config.upnp_enabled:
-            finder = functools.partial(UpnpDeviceFinder.find, self._config.upnp_scan_timeout)
-            devices.extend(await self._loop.run_in_executor(self._pool, finder))
+            devices.extend(await UpnpDeviceFinder.find(self._config.upnp_scan_timeout))
 
         if self._config.chromecast_enabled:
-            finder = functools.partial(ChromecastDeviceFinder.find, self._config.chromecast_scan_timeout)
-            devices.extend(await self._loop.run_in_executor(self._pool, finder))
+            # noinspection PyUnresolvedReferences
+            devices.extend(await ChromecastDeviceFinder.find(self._config.chromecast_scan_timeout))
 
         if devices:
             file_name = ""

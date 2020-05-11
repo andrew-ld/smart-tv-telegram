@@ -1,9 +1,20 @@
+import asyncio
+import concurrent.futures
 import re
 import typing
 
-range_regex = re.compile(r"bytes=([0-9]+)-")
 
+range_regex = re.compile(r"bytes=([0-9]+)-")
 named_media_types = ["document", "video", "audio", "video_note", "animation"]
+
+_executor = concurrent.futures.ThreadPoolExecutor()
+_loop = asyncio.get_event_loop()
+
+
+def run_method_in_executor(func):
+    async def wraps(*args):
+        return await _loop.run_in_executor(_executor, func, *args)
+    return wraps
 
 
 def parse_http_range(http_range: str, block_size: int) -> typing.Tuple[int, int]:

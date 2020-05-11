@@ -1,7 +1,9 @@
 import typing
+
 import pychromecast
 
 from . import Device, DeviceFinder
+from ..tools import run_method_in_executor
 
 
 class ChromecastDevice(Device):
@@ -14,9 +16,11 @@ class ChromecastDevice(Device):
 
         self.device_name = self._device.device.friendly_name
 
+    @run_method_in_executor
     def stop(self):
         pass
 
+    @run_method_in_executor
     def play(self, url: str, title: str):
         self._device.media_controller.play_media(url, "video/mp4", title=title)
         self._device.media_controller.block_until_active()
@@ -24,6 +28,7 @@ class ChromecastDevice(Device):
 
 class ChromecastDeviceFinder(DeviceFinder):
     @staticmethod
+    @run_method_in_executor
     def find(timeout: int = None) -> typing.List[Device]:
         return [
             ChromecastDevice(device)

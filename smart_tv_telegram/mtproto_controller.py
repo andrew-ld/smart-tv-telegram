@@ -1,9 +1,9 @@
+import functools
 import os
 import pickle
+
 import pyrogram
-
 from async_lru import alru_cache
-
 from pyrogram.api.functions.auth import ExportAuthorization, ImportAuthorization
 from pyrogram.api.functions.help import GetConfig
 from pyrogram.api.functions.messages import GetMessages
@@ -21,7 +21,8 @@ class MtprotoController:
 
     def __init__(self, config: Config):
         self._config = config
-        self._client = pyrogram.Client(config.session_name, config.api_id, config.api_hash, bot_token=config.token)
+        self._client = pyrogram.Client(config.session_name, config.api_id,
+                                       config.api_hash, bot_token=config.token)
 
     def register(self, handler: Handler):
         self._client.add_handler(handler)
@@ -38,7 +39,8 @@ class MtprotoController:
     async def get_block(self, message: Message, offset: int, block_size: int) -> bytes:
         doc = message.media.document
         session = self._client.media_sessions.get(doc.dc_id)
-        location = InputDocumentFileLocation(id=doc.id, access_hash=doc.access_hash, file_reference=b"", thumb_size="")
+        location = InputDocumentFileLocation(
+            id=doc.id, access_hash=doc.access_hash, file_reference=b"", thumb_size="")
         result = await session.send(GetFile(offset=offset, limit=block_size, location=location))
         return result.bytes
 
@@ -55,6 +57,9 @@ class MtprotoController:
             keys = {}
 
         for dc_id in dc_ids:
+            session = functools.partial(
+                pyrogram.session.Session, self._client, dc_id)
+
             if dc_id != self._client.storage.dc_id():
                 if dc_id not in keys:
                     exported_auth = await self._client.send(ExportAuthorization(dc_id=dc_id))
@@ -62,18 +67,19 @@ class MtprotoController:
                     auth = pyrogram.session.Auth(self._client, dc_id)
                     auth_key = await auth.create()
 
-                    session = Session(self._client, dc_id, auth_key, is_media=True)
+                    session = session(auth_key, is_media=True)
                     await session.start()
 
                     await session.send(ImportAuthorization(id=exported_auth.id, bytes=exported_auth.bytes))
                     keys[dc_id] = session.auth_key
 
                 else:
-                    session = pyrogram.session.Session(self._client, dc_id, keys[dc_id], is_media=True)
+                    session = session(keys[dc_id], is_media=True)
                     await session.start()
 
             else:
-                session = pyrogram.session.Session(self._client, dc_id, self._client.storage.auth_key(), is_media=True)
+                session = session(
+                    self._client.storage.auth_key(), is_media=True)
                 await session.start()
 
             self._client.media_sessions[dc_id] = session

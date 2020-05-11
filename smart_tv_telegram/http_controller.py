@@ -1,5 +1,6 @@
-import aiohttp.web
 import typing
+
+import aiohttp.web
 from aiohttp import web
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response, StreamResponse
@@ -55,7 +56,8 @@ class HttpController:
 
         else:
             try:
-                offset, data_to_skip = parse_http_range(range_header, self._config.block_size)
+                offset, data_to_skip = parse_http_range(
+                    range_header, self._config.block_size)
             except ValueError:
                 return Response(status=400)
 
@@ -77,7 +79,8 @@ class HttpController:
             return Response(status=400)
 
         stream = StreamResponse(status=206 if read_after else 200)
-        stream.headers.setdefault("Content-Range", f"bytes {read_after}-{size}/{size}")
+        stream.headers.setdefault(
+            "Content-Range", f"bytes {read_after}-{size}/{size}")
         stream.headers.setdefault("Accept-Ranges", "bytes")
         stream.headers.setdefault("Content-Length", str(size))
         self._write_headers(stream)

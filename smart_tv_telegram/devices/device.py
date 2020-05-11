@@ -11,11 +11,11 @@ class Device(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def stop(self):
+    async def stop(self):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def play(self, url: str, title: str):
+    async def play(self, url: str, title: str):
         raise NotImplementedError
 
     def __repr__(self):
@@ -24,5 +24,5 @@ class Device(abc.ABC):
 
 class DeviceFinder(abc.ABC):
     @staticmethod
-    def find(timeout: int = None) -> typing.List[Device]:
+    async def find(timeout: int = None) -> typing.List[Device]:
         raise NotImplementedError

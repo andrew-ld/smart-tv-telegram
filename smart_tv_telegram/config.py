@@ -37,12 +37,15 @@ class Config:
         self._upnp_enabled = bool(int(config["discovery"]["upnp_enabled"]))
 
         if self._upnp_enabled:
-            self._upnp_scan_timeout = int(config["discovery"]["upnp_scan_timeout"])
+            self._upnp_scan_timeout = int(
+                config["discovery"]["upnp_scan_timeout"])
 
-        self._chromecast_enabled = bool(int(config["discovery"]["chromecast_enabled"]))
+        self._chromecast_enabled = bool(
+            int(config["discovery"]["chromecast_enabled"]))
 
         if self._chromecast_enabled:
-            self._chromecast_scan_timeout = int(config["discovery"]["chromecast_scan_timeout"])
+            self._chromecast_scan_timeout = int(
+                config["discovery"]["chromecast_scan_timeout"])
 
         self._admins = ast.literal_eval(config["bot"]["admins"])
         self._block_size = int(config["bot"]["block_size"])
