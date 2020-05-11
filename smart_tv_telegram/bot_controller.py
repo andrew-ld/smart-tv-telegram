@@ -3,10 +3,11 @@ import concurrent.futures
 import functools
 import typing
 
-from pyrogram import Message, MessageHandler, Filters, ReplyKeyboardMarkup, KeyboardButton, Client
+from pyrogram import Message, MessageHandler, Filters, ReplyKeyboardMarkup, KeyboardButton, Client, ReplyKeyboardRemove
 
 from smart_tv_telegram import Config, MtprotoController
 from smart_tv_telegram.devices import UpnpDeviceFinder, ChromecastDeviceFinder
+from smart_tv_telegram.tools import named_media_types
 
 
 class BotController:
@@ -23,13 +24,13 @@ class BotController:
         self._loop = asyncio.get_event_loop()
         self._pool = concurrent.futures.ThreadPoolExecutor()
 
-    def _get_state(self, message: Message) -> typing.Union[bool, typing.Tuple[str, typing.Tuple[typing.Any]]]:
+    def _get_state(self, message: Message) -> typing.Tuple[typing.Union[bool, str], typing.Tuple[typing.Any]]:
         user_id = message.from_user.id
 
         if user_id in self._states:
             return self._states[user_id][0], self._states[user_id][1:]
 
-        return False
+        return False, tuple()
 
     def _set_state(self, message: Message, state: typing.Union[str, bool], *data: typing.Any):
         self._states[message.from_user.id] = (state, *data)
@@ -53,11 +54,12 @@ class BotController:
 
         self._set_state(message, False)
 
-        msg_id, filename, devices = args
-
         if message.text == "Cancel":
             await message.reply("Cancelled")
             return
+
+        # noinspection PyTupleAssignmentBalance
+        msg_id, filename, devices = args
 
         try:
             device = next(
@@ -73,7 +75,7 @@ class BotController:
         play = functools.partial(device.play, url, filename)
         await self._loop.run_in_executor(self._pool, play)
 
-        await message.reply(f"Playing ID: {msg_id}")
+        await message.reply(f"Playing ID: {msg_id}", reply_markup=ReplyKeyboardRemove())
 
     # noinspection PyUnusedLocal
     async def _new_document(self, client: Client, message: Message):
@@ -88,10 +90,14 @@ class BotController:
             devices.extend(await self._loop.run_in_executor(self._pool, finder))
 
         if devices:
-            if (message.document is None) or (message.document.file_name is None):
-                file_name = ""
-            else:
-                file_name = message.document.file_name
+            file_name = ""
+
+            for typ in named_media_types:
+                obj = getattr(message, typ)
+
+                if obj is not None:
+                    file_name = obj.file_name
+                    break
 
             self._set_state(message, "select", message.message_id, file_name, devices.copy())
 

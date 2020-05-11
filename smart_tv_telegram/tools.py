@@ -3,6 +3,8 @@ import typing
 
 range_regex = re.compile(r"bytes=([0-9]+)-")
 
+named_media_types = ["document", "video", "audio", "video_note", "animation"]
+
 
 def parse_http_range(http_range: str, block_size: int) -> typing.Tuple[int, int]:
     matches = range_regex.search(http_range)

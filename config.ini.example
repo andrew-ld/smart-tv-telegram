@@ -2,7 +2,7 @@
 api_id=6
 api_hash=eb06d4abfb49dc3eeb1aeb98ae0f581e
 token=xxxxxxxxx
-session_name=sessions/smarttv
+session_name=smart_tv_telegram
 
 [bot]
 admins=[337885031,32432424,44353421]
