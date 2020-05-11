@@ -16,8 +16,7 @@ class ChromecastDevice(Device):
 
         self.device_name = self._device.device.friendly_name
 
-    @run_method_in_executor
-    def stop(self):
+    async def stop(self):
         pass
 
     @run_method_in_executor
