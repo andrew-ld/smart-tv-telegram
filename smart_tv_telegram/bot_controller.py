@@ -37,6 +37,11 @@ class BotController:
     def prepare(self):
         admin_filter = Filters.chat(self._config.admins)
         self._mtproto.register(MessageHandler(self._new_document, Filters.document & admin_filter))
+        self._mtproto.register(MessageHandler(self._new_document, Filters.video & admin_filter))
+        self._mtproto.register(MessageHandler(self._new_document, Filters.audio & admin_filter))
+        self._mtproto.register(MessageHandler(self._new_document, Filters.animation & admin_filter))
+        self._mtproto.register(MessageHandler(self._new_document, Filters.voice & admin_filter))
+        self._mtproto.register(MessageHandler(self._new_document, Filters.video_note & admin_filter))
         self._mtproto.register(MessageHandler(self._play, Filters.text & admin_filter))
 
     # noinspection PyUnusedLocal
@@ -50,8 +55,8 @@ class BotController:
 
         msg_id, filename, devices = args
 
-        if message.text == "cancel":
-            await message.reply("cancelled")
+        if message.text == "Cancel":
+            await message.reply("Cancelled")
             return
 
         try:
@@ -61,14 +66,14 @@ class BotController:
                 if repr(device) == message.text
             )
         except StopIteration:
-            await message.reply("wrong device")
+            await message.reply("Wrong device")
             return
 
         url = f"http://{self._config.listen_host}:{self._config.listen_port}/stream/{msg_id}"
         play = functools.partial(device.play, url, filename)
         await self._loop.run_in_executor(self._pool, play)
 
-        await message.reply(f"playing {msg_id}")
+        await message.reply(f"Playing ID: {msg_id}")
 
     # noinspection PyUnusedLocal
     async def _new_document(self, client: Client, message: Message):
@@ -83,13 +88,18 @@ class BotController:
             devices.extend(await self._loop.run_in_executor(self._pool, finder))
 
         if devices:
-            self._set_state(message, "select", message.message_id, message.document.file_name, devices.copy())
+            if (message.document is None) or (message.document.file_name is None):
+                file_name = ""
+            else:
+                file_name = message.document.file_name
+
+            self._set_state(message, "select", message.message_id, file_name, devices.copy())
 
             buttons = [[KeyboardButton(repr(device))] for device in devices]
-            buttons.append([KeyboardButton("cancel")])
+            buttons.append([KeyboardButton("Cancel")])
             markup = ReplyKeyboardMarkup(buttons, one_time_keyboard=True)
 
-            await message.reply("select a device", reply_markup=markup)
+            await message.reply("Select a device", reply_markup=markup)
 
         else:
             await message.reply("Supported devices not found in the network")
