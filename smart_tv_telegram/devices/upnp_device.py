@@ -9,8 +9,8 @@ from async_upnp_client.search import async_search
 
 from . import Device, DeviceFinder
 
-avtransport = "urn:schemas-upnp-org:service:AVTransport:1"
 
+avtransport = "urn:schemas-upnp-org:service:AVTransport:1"
 
 ddl_meta = """
 <DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -54,11 +54,10 @@ class UpnpDevice(Device):
 class UpnpDeviceFinder(DeviceFinder):
     @staticmethod
     async def find(timeout: int = None) -> typing.List[Device]:
-        source_ip = IPv4Address("0.0.0.0")
-
         devices = []
         requester = AiohttpRequester()
         factory = UpnpFactory(requester)
+        source_ip = IPv4Address("0.0.0.0")
 
         async def on_response(data: typing.Mapping[str, typing.Any]) -> None:
             devices.append(await factory.async_create_device(data.get("LOCATION")))
