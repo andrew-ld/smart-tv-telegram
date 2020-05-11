@@ -11,6 +11,10 @@ _executor = concurrent.futures.ThreadPoolExecutor()
 _loop = asyncio.get_event_loop()
 
 
+def ascii_only(haystack: str) -> str:
+    return "".join(c for c in haystack if ord(c) < 128)
+
+
 def run_method_in_executor(func):
     async def wraps(*args):
         return await _loop.run_in_executor(_executor, func, *args)

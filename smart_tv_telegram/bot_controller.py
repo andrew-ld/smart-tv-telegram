@@ -7,6 +7,9 @@ from smart_tv_telegram.devices import UpnpDeviceFinder, ChromecastDeviceFinder
 from smart_tv_telegram.tools import named_media_types
 
 
+_remove = ReplyKeyboardRemove()
+
+
 class BotController:
     _config: Config
     _mtproto: MtprotoController
@@ -48,7 +51,7 @@ class BotController:
         self._set_state(message, False)
 
         if message.text == "Cancel":
-            await message.reply("Cancelled")
+            await message.reply("Cancelled", reply_markup=_remove)
             return
 
         # noinspection PyTupleAssignmentBalance
@@ -61,12 +64,12 @@ class BotController:
                 if repr(device) == message.text
             )
         except StopIteration:
-            await message.reply("Wrong device")
+            await message.reply("Wrong device", reply_markup=_remove)
             return
 
         await device.stop()
         await device.play(f"http://{self._config.listen_host}:{self._config.listen_port}/stream/{msg_id}", filename)
-        await message.reply(f"Playing ID: {msg_id}", reply_markup=ReplyKeyboardRemove())
+        await message.reply(f"Playing ID: {msg_id}", reply_markup=_remove)
 
     # noinspection PyUnusedLocal
     async def _new_document(self, client: Client, message: Message):
@@ -98,4 +101,4 @@ class BotController:
             await message.reply("Select a device", reply_markup=markup)
 
         else:
-            await message.reply("Supported devices not found in the network")
+            await message.reply("Supported devices not found in the network", reply_markup=_remove)

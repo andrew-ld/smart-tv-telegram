@@ -8,7 +8,7 @@ from async_upnp_client.aiohttp import AiohttpRequester
 from async_upnp_client.search import async_search
 
 from . import Device, DeviceFinder
-
+from ..tools import ascii_only
 
 avtransport = "urn:schemas-upnp-org:service:AVTransport:1"
 
@@ -44,7 +44,7 @@ class UpnpDevice(Device):
 
     async def play(self, url: str, title: str):
         set_url = self._service.action("SetAVTransportURI")
-        meta = ddl_meta.format(title=escape(title))
+        meta = ddl_meta.format(title=escape(ascii_only(title)))
         await set_url.async_call(InstanceID=0, CurrentURI=url, CurrentURIMetaData=meta)
 
         play = self._service.action("Play")
