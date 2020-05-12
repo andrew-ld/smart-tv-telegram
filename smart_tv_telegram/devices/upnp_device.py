@@ -10,6 +10,7 @@ from async_upnp_client.search import async_search
 from . import Device, DeviceFinder
 from ..tools import ascii_only
 
+
 avtransport = "urn:schemas-upnp-org:service:AVTransport:1"
 
 ddl_meta = """
