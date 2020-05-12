@@ -19,7 +19,7 @@ Make sure you have an updated version of python, only the latest version will be
 
 - Download the repository
 - Install python dependencies from requirements.txt
-- Copy config.json.example to config.json
+- Copy config.ini.example to config.ini
 - Edit config.ini
 
 ```bash
@@ -27,7 +27,7 @@ git clone https://github.com/andrew-ld/smart-tv-telegram
 cd smart-tv-telegram
 python3 -m pip install -r requirements.txt
 cp config.ini.example config.ini
-nano config.json
+nano config.ini
 python3 .
 ```
 
