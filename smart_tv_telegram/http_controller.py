@@ -87,7 +87,7 @@ class HttpController:
         await stream.prepare(request)
 
         while offset < size:
-            block = await self._mtproto.get_block(message, offset, self._config._block_size)
+            block = await self._mtproto.get_block(message, offset, self._config.block_size)
             offset += len(block)
 
             if data_to_skip:
