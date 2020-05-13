@@ -1,3 +1,4 @@
+import asyncio
 import typing
 
 import aiohttp.web
@@ -22,12 +23,12 @@ class HttpController:
     async def start(self):
         app = web.Application()
         app.add_routes([web.get("/stream/{message_id}", self._stream_handler)])
-        app.add_routes([web.options("/stream/{message_id}", self._fake_headers)])
-        app.add_routes([web.put("/stream/{message_id}", self._fake_headers)])
+        app.add_routes([web.options("/stream/{message_id}", self._upnp_discovery_handler)])
+        app.add_routes([web.put("/stream/{message_id}", self._upnp_discovery_handler)])
 
         await aiohttp.web._run_app(app, host=self._config.listen_host, port=self._config.listen_port)
 
-    def _write_headers(self, result: typing.Union[Response, StreamResponse]) -> typing.NoReturn:
+    def _write_upnp_headers(self, result: typing.Union[Response, StreamResponse]) -> typing.NoReturn:
         result.headers.setdefault("Content-Type", "video/mp4")
         result.headers.setdefault("Access-Control-Allow-Origin", "*")
         result.headers.setdefault("Access-Control-Allow-Methods", "GET, OPTIONS")
@@ -37,9 +38,9 @@ class HttpController:
         result.headers.setdefault("contentFeatures.dlna.org", "DLNA.ORG_OP=01;DLNA.ORG_CI=0;")
 
     # noinspection PyUnusedLocal
-    async def _fake_headers(self, request: Request) -> typing.Optional[Response]:
+    async def _upnp_discovery_handler(self, request: Request) -> typing.Optional[Response]:
         result = Response(status=200)
-        self._write_headers(result)
+        self._write_upnp_headers(result)
         return result
 
     async def _stream_handler(self, request: Request) -> typing.Optional[Response]:
@@ -79,11 +80,10 @@ class HttpController:
             return Response(status=400)
 
         stream = StreamResponse(status=206 if read_after else 200)
-        stream.headers.setdefault(
-            "Content-Range", f"bytes {read_after}-{size}/{size}")
+        stream.headers.setdefault("Content-Range", f"bytes {read_after}-{size}/{size}")
         stream.headers.setdefault("Accept-Ranges", "bytes")
         stream.headers.setdefault("Content-Length", str(size))
-        self._write_headers(stream)
+        self._write_upnp_headers(stream)
         await stream.prepare(request)
 
         while offset < size:

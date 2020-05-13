@@ -46,6 +46,11 @@ docker run --network host -v "$(pwd)/config.ini:/app/config.ini:ro" -d smart-tv-
 
 ## Troubleshooting
 
+**Q:** How-To control logging level
+
+**A:** start the script with `debug` or `production` argument, ex: `python3 . debug`
+
+##
 **Q:** How-To enable upnp on my device that use kodi
 
 **A:** follow [this guide](https://kodi.wiki/view/Settings/Services/UPnP_DLNA) (you should enable remote control)
