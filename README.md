@@ -70,4 +70,4 @@ docker run --network host -v "$(pwd)/config.ini:/app/config.ini:ro" -d smart-tv-
 ##
 **Q:** The video keeps freezing
 
-**A:** Check the video bitrate, this bot supports maximum ~1.5Mb/s
+**A:** Check the video bitrate, this bot supports maximum ~4.5Mb/s
