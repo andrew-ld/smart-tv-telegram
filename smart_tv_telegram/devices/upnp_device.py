@@ -3,7 +3,7 @@ from ipaddress import IPv4Address
 from xml.sax.saxutils import escape
 
 import async_upnp_client
-from async_upnp_client import UpnpFactory
+from async_upnp_client import UpnpFactory, UpnpError
 from async_upnp_client.aiohttp import AiohttpRequester
 from async_upnp_client.search import async_search
 
@@ -41,7 +41,12 @@ class UpnpDevice(Device):
 
     async def stop(self):
         stop = self._service.action("Stop")
-        await stop.async_call(InstanceID=0)
+
+        try:
+            await stop.async_call(InstanceID=0)
+        except UpnpError as e:
+            if str(e) != "Transition not available":
+                raise e
 
     async def play(self, url: str, title: str):
         set_url = self._service.action("SetAVTransportURI")

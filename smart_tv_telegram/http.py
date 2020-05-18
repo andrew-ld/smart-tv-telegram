@@ -1,4 +1,3 @@
-import asyncio
 import typing
 
 import aiohttp.web
@@ -7,16 +6,15 @@ from aiohttp.web_request import Request
 from aiohttp.web_response import Response, StreamResponse
 from pyrogram.api.types import MessageMediaDocument
 
-from smart_tv_telegram import Config
-from smart_tv_telegram import MtprotoController
+from smart_tv_telegram import Config, Mtproto
 from smart_tv_telegram.tools import parse_http_range
 
 
-class HttpController:
-    _mtproto: MtprotoController
+class Http:
+    _mtproto: Mtproto
     _config: Config
 
-    def __init__(self, mtproto: MtprotoController, config: Config):
+    def __init__(self, mtproto: Mtproto, config: Config):
         self._mtproto = mtproto
         self._config = config
 

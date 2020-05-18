@@ -1,11 +1,11 @@
 from .config import Config
-from .mtproto_controller import MtprotoController
-from .http_controller import HttpController
-from .bot_controller import BotController
+from .mtproto import Mtproto
+from .http import Http
+from .bot import Bot
 
 __all__ = [
     "Config",
-    "MtprotoController",
-    "HttpController",
-    "BotController"
+    "Mtproto",
+    "Http",
+    "Bot"
 ]

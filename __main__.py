@@ -7,9 +7,9 @@ from smart_tv_telegram import *
 
 async def async_main():
     config = Config("config.ini")
-    mtproto = MtprotoController(config)
-    http = HttpController(mtproto, config)
-    bot = BotController(mtproto, config)
+    mtproto = Mtproto(config)
+    http = Http(mtproto, config)
+    bot = Bot(mtproto, config)
 
     bot.prepare()
     await mtproto.start()

@@ -2,7 +2,7 @@ import typing
 
 from pyrogram import Message, MessageHandler, Filters, ReplyKeyboardMarkup, KeyboardButton, Client, ReplyKeyboardRemove
 
-from smart_tv_telegram import Config, MtprotoController
+from smart_tv_telegram import Config, Mtproto
 from smart_tv_telegram.devices import UpnpDeviceFinder, ChromecastDeviceFinder
 from smart_tv_telegram.tools import named_media_types
 
@@ -10,12 +10,12 @@ from smart_tv_telegram.tools import named_media_types
 _remove = ReplyKeyboardRemove()
 
 
-class BotController:
+class Bot:
     _config: Config
-    _mtproto: MtprotoController
+    _mtproto: Mtproto
     _states: typing.Dict[int, typing.Tuple[str, typing.Any]]
 
-    def __init__(self, mtproto: MtprotoController, config: Config):
+    def __init__(self, mtproto: Mtproto, config: Config):
         self._config = config
         self._mtproto = mtproto
         self._states = {}
