@@ -15,7 +15,7 @@ from pyrogram.session import Session
 from . import Config
 
 
-class MtprotoController:
+class Mtproto:
     _config: Config
     _client: pyrogram.Client
 

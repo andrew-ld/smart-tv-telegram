@@ -19,6 +19,9 @@ class Config:
     _chromecast_enabled: bool
     _chromecast_scan_timeout: int = 0
 
+    _xbmc_enabled: bool
+    _xbmc_devices: typing.List[dict]
+
     _admins: typing.List[int]
     _block_size: int
 
@@ -41,6 +44,20 @@ class Config:
 
         self._chromecast_enabled = bool(
             int(config["discovery"]["chromecast_enabled"]))
+
+        self._xbmc_enabled = bool(int(config["discovery"]["xbmc_enabled"]))
+
+        if self._xbmc_enabled:
+            self._xbmc_devices = ast.literal_eval(config["discovery"]["xbmc_devices"])
+
+            if not isinstance(self._xbmc_devices, list):
+                raise ValueError("xbmc_devices should be a list")
+
+            if not all(isinstance(x, dict) for x in self._xbmc_devices):
+                raise ValueError("xbmc_devices should contain only dict")
+
+        else:
+            self._xbmc_devices = []
 
         if self._chromecast_enabled:
             self._chromecast_scan_timeout = int(config["discovery"]["chromecast_scan_timeout"])
@@ -93,6 +110,14 @@ class Config:
     @property
     def chromecast_scan_timeout(self) -> int:
         return self._chromecast_scan_timeout
+
+    @property
+    def xbmc_enabled(self) -> bool:
+        return self._xbmc_enabled
+
+    @property
+    def xbmc_devices(self) -> typing.List[dict]:
+        return self._xbmc_devices
 
     @property
     def admins(self) -> typing.List[int]:

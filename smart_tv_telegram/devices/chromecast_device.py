@@ -3,6 +3,7 @@ import typing
 import pychromecast
 
 from . import Device, DeviceFinder
+from .. import Config
 from ..tools import run_method_in_executor
 
 
@@ -28,8 +29,9 @@ class ChromecastDevice(Device):
 class ChromecastDeviceFinder(DeviceFinder):
     @staticmethod
     @run_method_in_executor
-    def find(timeout: int = None) -> typing.List[Device]:
+    def find(config: Config) -> typing.List[Device]:
         return [
             ChromecastDevice(device)
-            for device in pychromecast.get_chromecasts(timeout=timeout)
+            for device in pychromecast.get_chromecasts(
+                timeout=config.chromecast_scan_timeout)
         ]

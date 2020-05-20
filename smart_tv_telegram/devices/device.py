@@ -1,6 +1,8 @@
 import abc
 import typing
 
+from smart_tv_telegram import Config
+
 
 class Device(abc.ABC):
     device_name: str
@@ -24,5 +26,5 @@ class Device(abc.ABC):
 
 class DeviceFinder(abc.ABC):
     @staticmethod
-    async def find(timeout: int = None) -> typing.List[Device]:
+    async def find(config: Config) -> typing.List[Device]:
         raise NotImplementedError
