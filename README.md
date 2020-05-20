@@ -48,7 +48,19 @@ docker run --network host -v "$(pwd)/config.ini:/app/config.ini:ro" -d smart-tv-
 
 **Q:** How-To control logging level
 
-**A:** start the script with `debug` or `production` argument, ex: `python3 . debug`
+**A:** Start the script with `debug` or `production` argument, ex: `python3 . debug`
+
+##
+**Q:** My Firewall block upnp and broadcasting, how can use kodi without it
+
+**A:** Set `xbmc_enabled` to `1` and add your kodi device to `xbmc_devices` list
+
+##
+**Q:** What is the format of `xbmc_devices`
+
+**A:** A List of Python Dict with `host`, `port`, (and optional: `username` and `password`)
+
+**example:** `[{"host": "192.168.1.2", "port": 8080, "username": "pippo", "password": "pluto"}]`
 
 ##
 **Q:** How-To enable upnp on my device that use kodi
