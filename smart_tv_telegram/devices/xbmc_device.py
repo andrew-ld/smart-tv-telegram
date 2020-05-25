@@ -7,11 +7,12 @@ import uuid
 import aiohttp
 import typing
 
-from smart_tv_telegram import Config
-from smart_tv_telegram.devices import Device, DeviceFinder
+from .. import Config
+from . import Device, DeviceFinder
 
 
 _LOGGER = logging.getLogger(__name__)
+_ARG_TYPE = typing.Union[typing.AnyStr, int, bool]
 
 JSON_HEADERS = {"content-type": "application/json"}
 JSONRPC_VERSION = "2.0"
@@ -28,7 +29,7 @@ class XbmcDeviceParams:
     _username: typing.Optional[str] = None
     _password: typing.Optional[str] = None
 
-    def __init__(self, params: typing.Dict[str, typing.Any]):
+    def __init__(self, params: typing.Dict[str, typing.AnyStr]):
         self._host = params["host"]
         self._port = params["port"]
 
@@ -64,11 +65,10 @@ class XbmcDevice(Device):
         else:
             self._auth = None
 
-        self.device_name = "xbmc @{}".format(device.host)
+        self.device_name = f"xbmc @{device.host}"
+        self._http_url = f"http://{device.host}:{device.port}/jsonrpc"
 
-        self._http_url = "http://{}:{}/jsonrpc".format(device.host, device.port)
-
-    async def call(self, method, **args):
+    async def _call(self, method: str, **args: typing.Union[_ARG_TYPE, typing.Mapping[str, _ARG_TYPE]]):
         data = {
             ATTR_JSONRPC: JSONRPC_VERSION,
             ATTR_METHOD: method,
@@ -117,15 +117,15 @@ class XbmcDevice(Device):
             await session.close()
 
     async def stop(self):
-        players = await self.call("Player.GetActivePlayers")
+        players = await self._call("Player.GetActivePlayers")
 
         if players:
-            await self.call("Player.Stop", playerid=players[0]["playerid"])
+            await self._call("Player.Stop", playerid=players[0]["playerid"])
 
     async def play(self, url: str, title: str):
-        await self.call("Playlist.Clear", playlistid=0)
-        await self.call("Playlist.Add", playlistid=0, item={"file": url})
-        await self.call("Player.Open", item={"playlistid": 0}, options={"repeat": "one"})
+        await self._call("Playlist.Clear", playlistid=0)
+        await self._call("Playlist.Add", playlistid=0, item={"file": url})
+        await self._call("Player.Open", item={"playlistid": 0}, options={"repeat": "one"})
 
 
 class XbmcDeviceFinder(DeviceFinder):

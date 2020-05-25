@@ -2,10 +2,9 @@ import typing
 
 from pyrogram import Message, MessageHandler, Filters, ReplyKeyboardMarkup, KeyboardButton, Client, ReplyKeyboardRemove
 
-from smart_tv_telegram import Config, Mtproto
-from smart_tv_telegram.devices import UpnpDeviceFinder, ChromecastDeviceFinder
-from smart_tv_telegram.devices.xbmc_device import XbmcDeviceFinder
-from smart_tv_telegram.tools import named_media_types
+from . import Config, Mtproto
+from .devices import UpnpDeviceFinder, ChromecastDeviceFinder, VlcDeviceFinder, XbmcDeviceFinder
+from .tools import named_media_types
 
 
 _remove = ReplyKeyboardRemove()
@@ -85,6 +84,9 @@ class Bot:
 
         if self._config.xbmc_enabled:
             devices.extend(await XbmcDeviceFinder.find(self._config))
+
+        if self._config.vlc_enabled:
+            devices.extend(await VlcDeviceFinder.find(self._config))
 
         if devices:
             file_name = ""

@@ -19,3 +19,5 @@ chromecast_enabled=0
 chromecast_scan_timeout=2
 xbmc_enabled=0
 xbmc_devices=[{"host": "192.168.42.140", "port": 8080},]
+vlc_enabled=0
+vlc_devices=[{"host": "127.0.0.1", "port": 4212, "password": "123"},]

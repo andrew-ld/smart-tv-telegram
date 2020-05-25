@@ -26,5 +26,6 @@ class Device(abc.ABC):
 
 class DeviceFinder(abc.ABC):
     @staticmethod
+    @abc.abstractmethod
     async def find(config: Config) -> typing.List[Device]:
         raise NotImplementedError

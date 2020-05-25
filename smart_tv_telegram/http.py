@@ -6,8 +6,8 @@ from aiohttp.web_request import Request
 from aiohttp.web_response import Response, StreamResponse
 from pyrogram.api.types import MessageMediaDocument
 
-from smart_tv_telegram import Config, Mtproto
-from smart_tv_telegram.tools import parse_http_range
+from . import Config, Mtproto
+from .tools import parse_http_range
 
 
 class Http:

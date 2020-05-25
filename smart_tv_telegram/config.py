@@ -1,6 +1,5 @@
 import ast
 import configparser
-
 import typing
 
 
@@ -21,6 +20,9 @@ class Config:
 
     _xbmc_enabled: bool
     _xbmc_devices: typing.List[dict]
+
+    _vlc_enabled: bool
+    _vlc_devices: typing.List[dict]
 
     _admins: typing.List[int]
     _block_size: int
@@ -58,6 +60,20 @@ class Config:
 
         else:
             self._xbmc_devices = []
+
+        self._vlc_enabled = bool(int(config["discovery"]["vlc_enabled"]))
+
+        if self._vlc_enabled:
+            self._vlc_devices = ast.literal_eval(config["discovery"]["vlc_devices"])
+
+            if not isinstance(self._xbmc_devices, list):
+                raise ValueError("vlc_devices should be a list")
+
+            if not all(isinstance(x, dict) for x in self._xbmc_devices):
+                raise ValueError("vlc_devices should contain only dict")
+
+        else:
+            self._vlc_devices = []
 
         if self._chromecast_enabled:
             self._chromecast_scan_timeout = int(config["discovery"]["chromecast_scan_timeout"])
@@ -118,6 +134,14 @@ class Config:
     @property
     def xbmc_devices(self) -> typing.List[dict]:
         return self._xbmc_devices
+
+    @property
+    def vlc_enabled(self) -> bool:
+        return self._vlc_enabled
+
+    @property
+    def vlc_devices(self) -> typing.List[dict]:
+        return self._vlc_devices
 
     @property
     def admins(self) -> typing.List[int]:

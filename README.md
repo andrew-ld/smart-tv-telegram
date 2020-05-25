@@ -63,6 +63,19 @@ docker run --network host -v "$(pwd)/config.ini:/app/config.ini:ro" -d smart-tv-
 **example:** `[{"host": "192.168.1.2", "port": 8080, "username": "pippo", "password": "pluto"}]`
 
 ##
+**Q:** How-To control vlc from this bot
+
+**A:** set `vlc_enabled` to `1` and add your vlc device to `vlc_devices` list
+
+##
+**Q:** What is the format of `vlc_devices`
+
+**A:** A List of Python Dict with `host`, `port`, (and optional: `password`)
+
+**example:** `[{"host": "127.0.0.1", "port": 4212, "password": "123"}]`
+
+
+##
 **Q:** How-To enable upnp on my device that use kodi
 
 **A:** follow [this guide](https://kodi.wiki/view/Settings/Services/UPnP_DLNA) (you should enable remote control)
