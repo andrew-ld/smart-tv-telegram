@@ -94,7 +94,6 @@ class XbmcDevice(Device):
                 return None
 
             response_json = await response.json()
-            print(response_json)
 
             if "error" in response_json:
                 _LOGGER.error(
