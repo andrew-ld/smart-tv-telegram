@@ -4,7 +4,7 @@ import re
 import typing
 
 
-range_regex = re.compile(r"bytes=([0-9]+)-")
+range_regex = re.compile(r"bytes=([0-9]+)-([0-9]+)?")
 named_media_types = ["document", "video", "audio", "video_note", "animation"]
 
 _executor = concurrent.futures.ThreadPoolExecutor()
@@ -21,7 +21,7 @@ def run_method_in_executor(func):
     return wraps
 
 
-def parse_http_range(http_range: str, block_size: int) -> typing.Tuple[int, int]:
+def parse_http_range(http_range: str, block_size: int) -> typing.Tuple[int, int, typing.Optional[int]]:
     matches = range_regex.search(http_range)
 
     if matches is None:
@@ -32,8 +32,15 @@ def parse_http_range(http_range: str, block_size: int) -> typing.Tuple[int, int]
     if not offset.isdigit():
         raise ValueError()
 
+    max_size = matches.group(2)
+
+    if max_size and max_size.isdigit():
+        max_size = int(max_size)
+    else:
+        max_size = None
+
     offset = int(offset)
     safe_offset = (offset // block_size) * block_size
     data_to_skip = offset - safe_offset
 
-    return safe_offset, data_to_skip
+    return safe_offset, data_to_skip, max_size

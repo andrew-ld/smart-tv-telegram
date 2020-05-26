@@ -52,10 +52,11 @@ class Http:
         if range_header is None:
             offset = 0
             data_to_skip = False
+            max_size = None
 
         else:
             try:
-                offset, data_to_skip = parse_http_range(
+                offset, data_to_skip, max_size = parse_http_range(
                     range_header, self._config.block_size)
             except ValueError:
                 return Response(status=400)
@@ -77,20 +78,31 @@ class Http:
         if read_after > size:
             return Response(status=400)
 
-        stream = StreamResponse(status=206 if read_after else 200)
-        stream.headers.setdefault("Content-Range", f"bytes {read_after}-{size}/{size}")
+        if (max_size is not None) and (size < max_size):
+            return Response(status=400)
+
+        if max_size is None:
+            max_size = size
+
+        stream = StreamResponse(status=206 if (read_after or (max_size != size)) else 200)
+        stream.headers.setdefault("Content-Range", f"bytes {read_after}-{max_size}/{size}")
         stream.headers.setdefault("Accept-Ranges", "bytes")
         stream.headers.setdefault("Content-Length", str(size))
         self._write_upnp_headers(stream)
         await stream.prepare(request)
 
-        while offset < size:
+        while offset < max_size:
             block = await self._mtproto.get_block(message, offset, self._config.block_size)
-            offset += len(block)
+            new_offset = offset + len(block)
 
             if data_to_skip:
                 block = block[data_to_skip:]
                 data_to_skip = False
+
+            if new_offset > max_size:
+                block = block[:max_size - offset]
+
+            offset = new_offset
 
             if request.transport.is_closing():
                 break
