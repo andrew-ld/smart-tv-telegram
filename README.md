@@ -5,7 +5,7 @@ A Telegram Bot to stream content on your smart TV (also Chromecast, FireTV and o
 - Streaming, the bot will not have to download the entire file before playing it on your device
 - You can play anything if your device has the right codec
 - You can streaming on any device that supports UPnP (AVTransport)
-- Chromecast support
+- Chromecast, Vlc (telnet api) and Kodi (xbmc http api) support
 - Streaming over HTTP
 
 Note: Chromecast (1st, 2nd and 3rd Gen.) [only supports H.264 and VP8 video codecs](https://developers.google.com/cast/docs/media#video_codecs)
