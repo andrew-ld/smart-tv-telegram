@@ -99,8 +99,10 @@ class Http:
                 block = block[data_to_skip:]
                 data_to_skip = False
 
-            if new_offset > max_size:
-                block = block[:max_size - offset]
+            current_size = offset + len(block)
+
+            if current_size > max_size:
+                block = block[:-(current_size - max_size)]
 
             offset = new_offset
 
