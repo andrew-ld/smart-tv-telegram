@@ -1,3 +1,4 @@
+import asyncio
 import functools
 import os
 import pickle
@@ -11,6 +12,7 @@ from pyrogram.api.functions.messages import GetMessages
 from pyrogram.api.functions.upload import GetFile
 from pyrogram.api.types import InputMessageID, Message, InputDocumentFileLocation
 from pyrogram.client.handlers.handler import Handler
+from pyrogram.errors import FloodWait
 from pyrogram.session import Session
 
 from . import Config
@@ -22,8 +24,8 @@ class Mtproto:
 
     def __init__(self, config: Config):
         self._config = config
-        self._client = pyrogram.Client(config.session_name, config.api_id,
-                                       config.api_hash, bot_token=config.token)
+        self._client = pyrogram.Client(config.session_name, config.api_id, config.api_hash,
+                                       bot_token=config.token, sleep_threshold=0)
 
     def register(self, handler: Handler):
         self._client.add_handler(handler)
@@ -38,11 +40,27 @@ class Mtproto:
         return messages.messages[0]
 
     async def get_block(self, message: Message, offset: int, block_size: int) -> bytes:
-        doc = message.media.document
-        session = self._client.media_sessions.get(doc.dc_id)
-        location = InputDocumentFileLocation(
-            id=doc.id, access_hash=doc.access_hash, file_reference=b"", thumb_size="")
-        result = await session.send(GetFile(offset=offset, limit=block_size, location=location))
+        session = self._client.media_sessions.get(message.media.document.dc_id)
+
+        r = GetFile(
+            offset=offset,
+            limit=block_size,
+            location=InputDocumentFileLocation(
+                id=message.media.document.id,
+                access_hash=message.media.document.access_hash,
+                file_reference=b"",
+                thumb_size=""
+            )
+        )
+
+        while True:
+            try:
+                result = await session.send(r)
+            except FloodWait:  # file floodwait is fake
+                await asyncio.sleep(self._config.file_fake_fw_wait)
+            else:
+                break
+
         return result.bytes
 
     async def start(self):

@@ -8,6 +8,7 @@ class Config:
     _api_hash: str
     _token: str
     _session_name: str
+    _file_fake_fw_wait: float
 
     _listen_host: str
     _listen_port: int
@@ -35,6 +36,7 @@ class Config:
         self._api_hash = str(config["mtproto"]["api_hash"])
         self._token = str(config["mtproto"]["token"])
         self._session_name = str(config["mtproto"]["session_name"])
+        self._file_fake_fw_wait = float(config["mtproto"]["file_fake_fw_wait"])
 
         self._listen_port = int(config["http"]["listen_port"])
         self._listen_host = str(config["http"]["listen_host"])
@@ -86,6 +88,10 @@ class Config:
 
         if not all(isinstance(x, int) for x in self._admins):
             raise ValueError("admins list should contain only integers")
+
+    @property
+    def file_fake_fw_wait(self) -> float:
+        return self._file_fake_fw_wait
 
     @property
     def api_id(self) -> int:
