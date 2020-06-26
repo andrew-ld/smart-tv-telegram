@@ -55,7 +55,7 @@ class Mtproto:
 
         while True:
             try:
-                result = await session.send(r)
+                result = await session.send(r, sleep_threshold=0)
             except FloodWait:  # file floodwait is fake
                 await asyncio.sleep(self._config.file_fake_fw_wait)
             else:
@@ -76,8 +76,7 @@ class Mtproto:
             keys = {}
 
         for dc_id in dc_ids:
-            session = functools.partial(
-                pyrogram.session.Session, self._client, dc_id)
+            session = functools.partial(pyrogram.session.Session, self._client, dc_id, is_media=True)
 
             if dc_id != self._client.storage.dc_id():
                 if dc_id not in keys:
@@ -86,19 +85,18 @@ class Mtproto:
                     auth = pyrogram.session.Auth(self._client, dc_id)
                     auth_key = await auth.create()
 
-                    session = session(auth_key, is_media=True)
+                    session = session(auth_key)
                     await session.start()
 
                     await session.send(ImportAuthorization(id=exported_auth.id, bytes=exported_auth.bytes))
                     keys[dc_id] = session.auth_key
 
                 else:
-                    session = session(keys[dc_id], is_media=True)
+                    session = session(keys[dc_id])
                     await session.start()
 
             else:
-                session = session(
-                    self._client.storage.auth_key(), is_media=True)
+                session = session(self._client.storage.auth_key())
                 await session.start()
 
             self._client.media_sessions[dc_id] = session
