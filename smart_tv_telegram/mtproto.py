@@ -35,9 +35,14 @@ class Mtproto:
         messages = await self._client.send(GetMessages(id=[InputMessageID(id=message_id)]))
 
         if not messages.messages:
-            raise ValueError()
+            raise ValueError("wrong message_id")
 
-        return messages.messages[0]
+        message = messages.messages[0]
+
+        if not isinstance(message, Message):
+            raise ValueError(f"expected `Message`, found: `{type(message).__name__}`")
+
+        return message
 
     async def get_block(self, message: Message, offset: int, block_size: int) -> bytes:
         session = self._client.media_sessions.get(message.media.document.dc_id)
