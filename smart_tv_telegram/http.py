@@ -1,13 +1,14 @@
 import typing
+from urllib.parse import quote
 
 import aiohttp.web
 from aiohttp import web
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response, StreamResponse
-from pyrogram.api.types import MessageMediaDocument
+from pyrogram.api.types import MessageMediaDocument, Message, Document
 
 from . import Config, Mtproto
-from .tools import parse_http_range
+from .tools import parse_http_range, mtproto_filename
 
 
 class Http:
@@ -26,7 +27,7 @@ class Http:
 
         await aiohttp.web._run_app(app, host=self._config.listen_host, port=self._config.listen_port)
 
-    def _write_upnp_headers(self, result: typing.Union[Response, StreamResponse]) -> typing.NoReturn:
+    def _write_upnp_headers(self, result: typing.Union[Response, StreamResponse]):
         result.headers.setdefault("Content-Type", "video/mp4")
         result.headers.setdefault("Access-Control-Allow-Origin", "*")
         result.headers.setdefault("Access-Control-Allow-Methods", "GET, OPTIONS")
@@ -34,6 +35,9 @@ class Http:
         result.headers.setdefault("transferMode.dlna.org", "Streaming")
         result.headers.setdefault("TimeSeekRange.dlna.org", "npt=0.00-")
         result.headers.setdefault("contentFeatures.dlna.org", "DLNA.ORG_OP=01;DLNA.ORG_CI=0;")
+
+    def _write_filename_header(self, result: typing.Union[Response, StreamResponse], filename: str):
+        result.headers.setdefault("Content-Disposition", f'inline; filename="{quote(filename)}"')
 
     # noinspection PyUnusedLocal
     async def _upnp_discovery_handler(self, request: Request) -> typing.Optional[Response]:
@@ -72,6 +76,9 @@ class Http:
         if not isinstance(message.media, MessageMediaDocument):
             return Response(status=404)
 
+        if not isinstance(message.media.document, Document):
+            return Response(status=404)
+
         size = message.media.document.size
         read_after = offset + data_to_skip
 
@@ -85,10 +92,17 @@ class Http:
             max_size = size
 
         stream = StreamResponse(status=206 if (read_after or (max_size != size)) else 200)
+        self._write_upnp_headers(stream)
+
         stream.headers.setdefault("Content-Range", f"bytes {read_after}-{max_size}/{size}")
         stream.headers.setdefault("Accept-Ranges", "bytes")
         stream.headers.setdefault("Content-Length", str(size))
-        self._write_upnp_headers(stream)
+
+        try:
+            self._write_filename_header(stream, mtproto_filename(message))
+        except TypeError:
+            pass
+
         await stream.prepare(request)
 
         while offset < max_size:

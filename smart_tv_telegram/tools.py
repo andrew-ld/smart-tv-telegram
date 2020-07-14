@@ -3,12 +3,30 @@ import concurrent.futures
 import re
 import typing
 
+from pyrogram.api.types import Message, MessageMediaDocument, Document, DocumentAttributeFilename
 
 range_regex = re.compile(r"bytes=([0-9]+)-([0-9]+)?")
 named_media_types = ["document", "video", "audio", "video_note", "animation"]
 
 _executor = concurrent.futures.ThreadPoolExecutor()
 _loop = asyncio.get_event_loop()
+
+
+def mtproto_filename(message: Message) -> str:
+    if not (
+        isinstance(message.media, MessageMediaDocument) and
+        isinstance(message.media.document, Document)
+    ):
+        raise TypeError()
+
+    try:
+        return next(
+            attr.file_name
+            for attr in message.media.document.attributes
+            if isinstance(attr, DocumentAttributeFilename)
+        )
+    except StopIteration:
+        raise TypeError()
 
 
 def ascii_only(haystack: str) -> str:
