@@ -52,7 +52,7 @@ class UpnpDevice(Device):
 
     async def play(self, url: str, title: str):
         set_url = self._service.action("SetAVTransportURI")
-        meta = ddl_meta.format(title=escape(ascii_only(title)), url=url)
+        meta = ddl_meta.format(title=escape(ascii_only(title)), url=escape(url))
         await set_url.async_call(InstanceID=0, CurrentURI=url, CurrentURIMetaData=meta)
 
         play = self._service.action("Play")
