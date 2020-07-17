@@ -25,6 +25,7 @@ ddl_meta = """
         <desc id="cdudn" nameSpace="urn:schemas-rinconnetworks-com:metadata-1-0/">
             SA_RINCON65031_
         </desc>
+        <res protocolInfo="http-get:*:video/mp4:DLNA.ORG_OP=01;DLNA.ORG_CI=0;DLNA.ORG_FLAGS=01700000000000000000000000000000">{url}</res>
     </item>
 </DIDL-Lite>
 """
@@ -46,12 +47,12 @@ class UpnpDevice(Device):
         try:
             await stop.async_call(InstanceID=0)
         except UpnpError as e:
-            if str(e) != "Transition not available":
+            if "Transition not available" not in str(e):
                 raise e
 
     async def play(self, url: str, title: str):
         set_url = self._service.action("SetAVTransportURI")
-        meta = ddl_meta.format(title=escape(ascii_only(title)))
+        meta = ddl_meta.format(title=escape(ascii_only(title)), url=url)
         await set_url.async_call(InstanceID=0, CurrentURI=url, CurrentURIMetaData=meta)
 
         play = self._service.action("Play")
