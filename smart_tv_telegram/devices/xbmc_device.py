@@ -57,6 +57,7 @@ class XbmcDeviceParams:
 class XbmcDevice(Device):
     _auth: typing.Optional[aiohttp.BasicAuth]
     _http_url: str
+    _host: str
 
     # noinspection PyMissingConstructor
     def __init__(self, device: XbmcDeviceParams):
@@ -65,8 +66,11 @@ class XbmcDevice(Device):
         else:
             self._auth = None
 
-        self.device_name = f"xbmc @{device.host}"
         self._http_url = f"http://{device.host}:{device.port}/jsonrpc"
+        self._host = device.host
+
+    def get_device_name(self) -> str:
+        return f"xbmc @{self._host}"
 
     async def _call(self, method: str, **args: typing.Union[_ARG_TYPE, typing.Mapping[str, _ARG_TYPE]]):
         data = {

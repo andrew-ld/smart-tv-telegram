@@ -45,7 +45,9 @@ class VlcDevice(Device):
     # noinspection PyMissingConstructor
     def __init__(self, device: VlcDeviceParams):
         self._params = device
-        self.device_name = f"vlc @{device.host}"
+
+    def get_device_name(self) -> str:
+        return f"vlc @{self._params.host}"
 
     async def _call(self, method: str, *args: typing.AnyStr):
         reader, writer = await asyncio.open_connection(self._params.host, self._params.port)

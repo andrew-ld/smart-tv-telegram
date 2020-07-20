@@ -39,7 +39,9 @@ class UpnpDevice(Device):
     def __init__(self, device: async_upnp_client.UpnpDevice):
         self._device = device
         self._service = self._device.service(avtransport)
-        self.device_name = self._device.friendly_name
+
+    def get_device_name(self) -> str:
+        return self._device.friendly_name
 
     async def stop(self):
         stop = self._service.action("Stop")

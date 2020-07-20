@@ -5,6 +5,7 @@ import typing
 
 from pyrogram.api.types import Message, MessageMediaDocument, Document, DocumentAttributeFilename
 
+
 range_regex = re.compile(r"bytes=([0-9]+)-([0-9]+)?")
 named_media_types = ["document", "video", "audio", "video_note", "animation"]
 

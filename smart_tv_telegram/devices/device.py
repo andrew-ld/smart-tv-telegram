@@ -5,8 +5,6 @@ from smart_tv_telegram import Config
 
 
 class Device(abc.ABC):
-    device_name: str
-
     # noinspection PyUnusedLocal
     @abc.abstractmethod
     def __init__(self, device: typing.Any):
@@ -20,8 +18,12 @@ class Device(abc.ABC):
     async def play(self, url: str, title: str):
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def get_device_name(self) -> str:
+        raise NotImplementedError
+
     def __repr__(self):
-        return self.device_name
+        return self.get_device_name()
 
 
 class DeviceFinder(abc.ABC):
