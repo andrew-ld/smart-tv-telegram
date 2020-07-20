@@ -69,7 +69,6 @@ class Bot:
     def __init__(self, mtproto: Mtproto, config: Config):
         self._config = config
         self._mtproto = mtproto
-        self._states = {}
         self._state_machine = TelegramStateMachine()
 
     def prepare(self):
