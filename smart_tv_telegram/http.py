@@ -5,7 +5,7 @@ import aiohttp.web
 from aiohttp import web
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response, StreamResponse
-from pyrogram.api.types import MessageMediaDocument, Message, Document
+from pyrogram.api.types import MessageMediaDocument, Document
 
 from . import Config, Mtproto
 from .tools import parse_http_range, mtproto_filename
@@ -25,6 +25,7 @@ class Http:
         app.add_routes([web.options("/stream/{message_id}", self._upnp_discovery_handler)])
         app.add_routes([web.put("/stream/{message_id}", self._upnp_discovery_handler)])
 
+        # noinspection PyProtectedMember
         await aiohttp.web._run_app(app, host=self._config.listen_host, port=self._config.listen_port)
 
     def _write_upnp_headers(self, result: typing.Union[Response, StreamResponse]):
@@ -99,9 +100,11 @@ class Http:
         stream.headers.setdefault("Content-Length", str(size))
 
         try:
-            self._write_filename_header(stream, mtproto_filename(message))
+            filename = mtproto_filename(message)
         except TypeError:
-            pass
+            filename = f"file_{message.media.document.id}"
+
+        self._write_filename_header(stream, filename)
 
         await stream.prepare(request)
 
