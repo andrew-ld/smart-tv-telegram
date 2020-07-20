@@ -116,7 +116,7 @@ class Bot:
                 await device.play(uri, data.filename)
 
             except Exception as ex:
-                await message.reply(f"Error while communicate with the device: {ex}", reply_markup=REMOVE_KEYBOARD)
+                await message.reply(f"Error while communicate with the device:\n {ex}", reply_markup=REMOVE_KEYBOARD)
 
             else:
                 await message.reply(f"Playing ID: {data.msg_id}", reply_markup=REMOVE_KEYBOARD)
