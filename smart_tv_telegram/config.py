@@ -10,6 +10,8 @@ class Config:
     _session_name: str
     _file_fake_fw_wait: float
 
+    _device_request_timeout: int
+
     _listen_host: str
     _listen_port: int
 
@@ -46,8 +48,9 @@ class Config:
         if self._upnp_enabled:
             self._upnp_scan_timeout = int(config["discovery"]["upnp_scan_timeout"])
 
-        self._chromecast_enabled = bool(
-            int(config["discovery"]["chromecast_enabled"]))
+        self._chromecast_enabled = bool(int(config["discovery"]["chromecast_enabled"]))
+
+        self._device_request_timeout = int(config["discovery"]["device_request_timeout"])
 
         self._xbmc_enabled = bool(int(config["discovery"]["xbmc_enabled"]))
 
@@ -156,3 +159,7 @@ class Config:
     @property
     def block_size(self) -> int:
         return self._block_size
+
+    @property
+    def device_request_timeout(self) -> int:
+        return self._device_request_timeout

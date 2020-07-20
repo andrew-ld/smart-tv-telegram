@@ -2,6 +2,7 @@ import abc
 import typing
 import enum
 
+import async_timeout
 from pyrogram import Message, MessageHandler, Filters, ReplyKeyboardMarkup, KeyboardButton, Client, ReplyKeyboardRemove
 
 from . import Config, Mtproto
@@ -106,9 +107,22 @@ class Bot:
             await message.reply("Wrong device", reply_markup=REMOVE_KEYBOARD)
             return
 
-        await device.stop()
-        await device.play(build_uri(self._config, data.msg_id), data.filename)
-        await message.reply(f"Playing ID: {data.msg_id}", reply_markup=REMOVE_KEYBOARD)
+        async with async_timeout.timeout(self._config.device_request_timeout) as cm:
+            uri = build_uri(self._config, data.msg_id)
+
+            # noinspection PyBroadException
+            try:
+                await device.stop()
+                await device.play(uri, data.filename)
+
+            except Exception as ex:
+                await message.reply(f"Error while communicate with the device: {ex}", reply_markup=REMOVE_KEYBOARD)
+
+            else:
+                await message.reply(f"Playing ID: {data.msg_id}", reply_markup=REMOVE_KEYBOARD)
+
+        if cm.expired:
+            await message.reply(f"Timeout while communicate with the device", reply_markup=REMOVE_KEYBOARD)
 
     # noinspection PyUnusedLocal
     async def _new_document(self, client: Client, message: Message):
