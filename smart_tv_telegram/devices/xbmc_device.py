@@ -14,13 +14,13 @@ from . import Device, DeviceFinder
 _LOGGER = logging.getLogger(__name__)
 _ARG_TYPE = typing.Union[typing.AnyStr, int, bool]
 
-JSON_HEADERS = {"content-type": "application/json"}
-JSONRPC_VERSION = "2.0"
+_JSON_HEADERS = {"content-type": "application/json"}
+_JSONRPC_VERSION = "2.0"
 
-ATTR_JSONRPC = "jsonrpc"
-ATTR_METHOD = "method"
-ATTR_PARAMS = "params"
-ATTR_ID = "id"
+_ATTR_JSONRPC = "jsonrpc"
+_ATTR_METHOD = "method"
+_ATTR_PARAMS = "params"
+_ATTR_ID = "id"
 
 
 class XbmcDeviceParams:
@@ -74,14 +74,14 @@ class XbmcDevice(Device):
 
     async def _call(self, method: str, **args: typing.Union[_ARG_TYPE, typing.Mapping[str, _ARG_TYPE]]):
         data = {
-            ATTR_JSONRPC: JSONRPC_VERSION,
-            ATTR_METHOD: method,
-            ATTR_ID: str(uuid.uuid4()),
-            ATTR_PARAMS: args
+            _ATTR_JSONRPC: _JSONRPC_VERSION,
+            _ATTR_METHOD: method,
+            _ATTR_ID: str(uuid.uuid4()),
+            _ATTR_PARAMS: args
         }
 
         response = None
-        session = aiohttp.ClientSession(auth=self._auth, headers=JSON_HEADERS)
+        session = aiohttp.ClientSession(auth=self._auth, headers=_JSON_HEADERS)
 
         try:
             response = await session.post(self._http_url, data=json.dumps(data))

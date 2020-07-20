@@ -12,9 +12,9 @@ from .. import Config
 from ..tools import ascii_only
 
 
-avtransport = "urn:schemas-upnp-org:service:AVTransport:1"
+_AVTRANSPORT_SCHEMA = "urn:schemas-upnp-org:service:AVTransport:1"
 
-ddl_meta = """
+_DLL_METADATA = """
 <DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/"
     xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/"
     xmlns:r="urn:schemas-rinconnetworks-com:metadata-1-0/"
@@ -38,7 +38,7 @@ class UpnpDevice(Device):
     # noinspection PyMissingConstructor
     def __init__(self, device: async_upnp_client.UpnpDevice):
         self._device = device
-        self._service = self._device.service(avtransport)
+        self._service = self._device.service(_AVTRANSPORT_SCHEMA)
 
     def get_device_name(self) -> str:
         return self._device.friendly_name
@@ -54,7 +54,7 @@ class UpnpDevice(Device):
 
     async def play(self, url: str, title: str):
         set_url = self._service.action("SetAVTransportURI")
-        meta = ddl_meta.format(title=escape(ascii_only(title)), url=escape(url))
+        meta = _DLL_METADATA.format(title=escape(ascii_only(title)), url=escape(url))
         await set_url.async_call(InstanceID=0, CurrentURI=url, CurrentURIMetaData=meta)
 
         play = self._service.action("Play")
@@ -72,7 +72,7 @@ class UpnpDeviceFinder(DeviceFinder):
         async def on_response(data: typing.Mapping[str, typing.Any]) -> None:
             devices.append(await factory.async_create_device(data.get("LOCATION")))
 
-        await async_search(service_type=avtransport,
+        await async_search(service_type=_AVTRANSPORT_SCHEMA,
                            source_ip=source_ip,
                            timeout=config.upnp_scan_timeout,
                            async_callback=on_response)
