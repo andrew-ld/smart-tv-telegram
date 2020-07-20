@@ -5,6 +5,8 @@ import typing
 
 from pyrogram.api.types import Message, MessageMediaDocument, Document, DocumentAttributeFilename
 
+from smart_tv_telegram import Config
+
 
 range_regex = re.compile(r"bytes=([0-9]+)-([0-9]+)?")
 named_media_types = ["document", "video", "audio", "video_note", "animation"]
@@ -28,6 +30,10 @@ def mtproto_filename(message: Message) -> str:
         )
     except StopIteration:
         raise TypeError()
+
+
+def build_uri(config: Config, msg_id: int) -> str:
+    return f"http://{config.listen_host}:{config.listen_port}/stream/{msg_id}"
 
 
 def ascii_only(haystack: str) -> str:

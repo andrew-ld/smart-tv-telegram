@@ -1,35 +1,75 @@
+import abc
 import typing
+import enum
 
 from pyrogram import Message, MessageHandler, Filters, ReplyKeyboardMarkup, KeyboardButton, Client, ReplyKeyboardRemove
 
 from . import Config, Mtproto
-from .devices import UpnpDeviceFinder, ChromecastDeviceFinder, VlcDeviceFinder, XbmcDeviceFinder
-from .tools import named_media_types
+from .devices import UpnpDeviceFinder, ChromecastDeviceFinder, VlcDeviceFinder, XbmcDeviceFinder, Device
+from .tools import named_media_types, build_uri
 
 
-_remove = ReplyKeyboardRemove()
+REMOVE_KEYBOARD = ReplyKeyboardRemove()
+CANCEL_BUTTON = "^Cancel"
+
+
+class States(enum.Enum):
+    NOTHING = enum.auto()
+    SELECT = enum.auto()
+
+
+class StateData(abc.ABC):
+    @abc.abstractmethod
+    def get_associated_state(self) -> States:
+        raise NotImplementedError
+
+
+class SelectStateData(StateData):
+    msg_id: int
+    filename: str
+    devices: typing.List[Device]
+
+    def get_associated_state(self) -> States:
+        return States.SELECT
+
+    def __init__(self, msg_id: int, filename: str, devices: typing.List[Device]):
+        self.msg_id = msg_id
+        self.filename = filename
+        self.devices = devices
+
+
+class TelegramStateMachine:
+    _states: typing.Dict[int, typing.Tuple[States, typing.Union[bool, StateData]]]
+
+    def __init__(self):
+        self._states = {}
+
+    def get_state(self, message: Message) -> typing.Tuple[States, typing.Union[bool, StateData]]:
+        user_id = message.from_user.id
+
+        if user_id in self._states:
+            return self._states[user_id]
+
+        return States.NOTHING, False
+
+    def set_state(self, message: Message, state: States, data: typing.Union[bool, StateData]) -> bool:
+        if isinstance(data, bool) or data.get_associated_state() == state:
+            self._states[message.from_user.id] = (state, data)
+            return True
+
+        raise TypeError()
 
 
 class Bot:
     _config: Config
+    _state_machine: TelegramStateMachine
     _mtproto: Mtproto
-    _states: typing.Dict[int, typing.Tuple[str, typing.Any]]
 
     def __init__(self, mtproto: Mtproto, config: Config):
         self._config = config
         self._mtproto = mtproto
         self._states = {}
-
-    def _get_state(self, message: Message) -> typing.Tuple[typing.Union[bool, str], typing.Tuple[typing.Any]]:
-        user_id = message.from_user.id
-
-        if user_id in self._states:
-            return self._states[user_id][0], self._states[user_id][1:]
-
-        return False, tuple()
-
-    def _set_state(self, message: Message, state: typing.Union[str, bool], *data: typing.Any):
-        self._states[message.from_user.id] = (state, *data)
+        self._state_machine = TelegramStateMachine()
 
     def prepare(self):
         admin_filter = Filters.chat(self._config.admins)
@@ -43,33 +83,32 @@ class Bot:
 
     # noinspection PyUnusedLocal
     async def _play(self, client: Client, message: Message):
-        state, args = self._get_state(message)
+        state, data = self._state_machine.get_state(message)
 
-        if state != "select":
+        if state != States.SELECT:
             return
 
-        self._set_state(message, False)
+        data: SelectStateData
 
-        if message.text == "Cancel":
-            await message.reply("Cancelled", reply_markup=_remove)
+        self._state_machine.set_state(message, States.NOTHING, False)
+
+        if message.text == CANCEL_BUTTON:
+            await message.reply("Cancelled", reply_markup=REMOVE_KEYBOARD)
             return
-
-        # noinspection PyTupleAssignmentBalance
-        msg_id, filename, devices = args
 
         try:
             device = next(
                 device
-                for device in devices
+                for device in data.devices
                 if repr(device) == message.text
             )
         except StopIteration:
-            await message.reply("Wrong device", reply_markup=_remove)
+            await message.reply("Wrong device", reply_markup=REMOVE_KEYBOARD)
             return
 
         await device.stop()
-        await device.play(f"http://{self._config.listen_host}:{self._config.listen_port}/stream/{msg_id}", filename)
-        await message.reply(f"Playing ID: {msg_id}", reply_markup=_remove)
+        await device.play(build_uri(self._config, data.msg_id), data.filename)
+        await message.reply(f"Playing ID: {data.msg_id}", reply_markup=REMOVE_KEYBOARD)
 
     # noinspection PyUnusedLocal
     async def _new_document(self, client: Client, message: Message):
@@ -98,13 +137,20 @@ class Bot:
                     file_name = obj.file_name
                     break
 
-            self._set_state(message, "select", message.message_id, file_name, devices.copy())
+            self._state_machine.set_state(
+                message,
+                States.SELECT,
+                SelectStateData(
+                    message.message_id,
+                    file_name,
+                    devices.copy()
+                )
+            )
 
             buttons = [[KeyboardButton(repr(device))] for device in devices]
-            buttons.append([KeyboardButton("Cancel")])
+            buttons.append([KeyboardButton(CANCEL_BUTTON)])
             markup = ReplyKeyboardMarkup(buttons, one_time_keyboard=True)
-
             await message.reply("Select a device", reply_markup=markup)
 
         else:
-            await message.reply("Supported devices not found in the network", reply_markup=_remove)
+            await message.reply("Supported devices not found in the network", reply_markup=REMOVE_KEYBOARD)
