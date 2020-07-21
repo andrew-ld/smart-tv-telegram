@@ -1,7 +1,7 @@
 import abc
 import typing
 
-from smart_tv_telegram import Config
+from .. import Config
 
 
 __all__ = [

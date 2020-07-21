@@ -12,7 +12,6 @@ multidict==4.7.5
 protobuf==3.11.3
 pyaes==1.6.1
 PyChromecast==5.1.0
-https://github.com/pyrogram/pyrogram/archive/asyncio-dev.zip
 PySocks==1.7.1
 requests==2.23.0
 six==1.14.0
@@ -21,3 +20,4 @@ urllib3==1.25.9
 yarl==1.4.2
 zeroconf==0.26.1
 async_upnp_client==0.14.14
+Pyrogram @ https://github.com/pyrogram/pyrogram/archive/asyncio-dev.zip
