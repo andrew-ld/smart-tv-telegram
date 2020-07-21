@@ -1,4 +1,5 @@
 import abc
+import functools
 import typing
 import enum
 import html
@@ -97,9 +98,10 @@ class Bot:
         data: SelectStateData
 
         self._state_machine.set_state(message, States.NOTHING, False)
+        reply = functools.partial(message.reply, reply_markup=_REMOVE_KEYBOARD)
 
         if message.text == _CANCEL_BUTTON:
-            await message.reply("Cancelled", reply_markup=_REMOVE_KEYBOARD)
+            await reply("Cancelled")
             return
 
         try:
@@ -109,7 +111,7 @@ class Bot:
                 if repr(device) == message.text
             )
         except StopIteration:
-            await message.reply("Wrong device", reply_markup=_REMOVE_KEYBOARD)
+            await reply("Wrong device")
             return
 
         async with async_timeout.timeout(self._config.device_request_timeout) as cm:
@@ -121,17 +123,16 @@ class Bot:
                 await device.play(uri, data.filename)
 
             except Exception as ex:
-                await message.reply(
+                await reply(
                     "Error while communicate with the device:\n\n"
-                    f"<code>{html.escape(str(ex))}</code>",
-                    reply_markup=_REMOVE_KEYBOARD
+                    f"<code>{html.escape(str(ex))}</code>"
                 )
 
             else:
-                await message.reply(f"Playing ID: {data.msg_id}", reply_markup=_REMOVE_KEYBOARD)
+                await reply(f"Playing ID: {data.msg_id}")
 
         if cm.expired:
-            await message.reply(f"Timeout while communicate with the device", reply_markup=_REMOVE_KEYBOARD)
+            await reply(f"Timeout while communicate with the device")
 
     # noinspection PyUnusedLocal
     async def _new_document(self, client: Client, message: Message):
