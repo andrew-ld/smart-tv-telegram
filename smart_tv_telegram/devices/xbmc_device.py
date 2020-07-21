@@ -11,6 +11,12 @@ from .. import Config
 from . import Device, DeviceFinder
 
 
+__all__ = [
+    "XbmcDevice",
+    "XbmcDeviceFinder"
+]
+
+
 _LOGGER = logging.getLogger(__name__)
 _ARG_TYPE = typing.Union[typing.AnyStr, int, bool]
 

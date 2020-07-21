@@ -11,6 +11,11 @@ from . import Config, Mtproto
 from .tools import parse_http_range, mtproto_filename
 
 
+__all__ = [
+    "Http"
+]
+
+
 class Http:
     _mtproto: Mtproto
     _config: Config

@@ -4,6 +4,7 @@ from .chromecast_device import ChromecastDevice, ChromecastDeviceFinder
 from .vlc_device import VlcDeviceFinder, VlcDevice
 from .xbmc_device import XbmcDevice, XbmcDeviceFinder
 
+
 __all__ = [
     "Device",
     "DeviceFinder",

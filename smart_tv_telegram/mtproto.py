@@ -18,6 +18,11 @@ from pyrogram.session import Session
 from . import Config
 
 
+__all__ = [
+    "Mtproto"
+]
+
+
 class Mtproto:
     _config: Config
     _client: pyrogram.Client

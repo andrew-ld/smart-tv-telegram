@@ -3,6 +3,12 @@ from .mtproto import Mtproto
 from .http import Http
 from .bot import Bot
 
+
+__version_info__ = ("1", "0", "0")
+__version__ = "1.0.0"
+__author__ = "https://github.com/andrew-ld"
+
+
 __all__ = [
     "Config",
     "Mtproto",

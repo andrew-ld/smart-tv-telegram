@@ -3,6 +3,11 @@ import configparser
 import typing
 
 
+__all__ = [
+    "Config"
+]
+
+
 class Config:
     _api_id: int
     _api_hash: str

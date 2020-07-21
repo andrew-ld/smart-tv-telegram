@@ -12,6 +12,12 @@ from .. import Config
 from ..tools import ascii_only
 
 
+__all__ = [
+    "UpnpDevice",
+    "UpnpDeviceFinder"
+]
+
+
 _AVTRANSPORT_SCHEMA = "urn:schemas-upnp-org:service:AVTransport:1"
 
 _DLL_METADATA = """

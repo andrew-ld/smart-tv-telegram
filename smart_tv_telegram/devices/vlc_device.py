@@ -7,6 +7,12 @@ from . import DeviceFinder, Device
 from .. import Config
 
 
+__all__ = [
+    "VlcDevice",
+    "VlcDeviceFinder"
+]
+
+
 _LOGGER = logging.getLogger(__name__)
 _ENCODING = "utf8"
 _EOF = b"\n\r"
@@ -58,15 +64,15 @@ class VlcDevice(Device):
                 writer.write(bytes(self._params.password, _ENCODING) + _EOF)
                 await writer.drain()
 
+                auth_result = await reader.read(io.DEFAULT_BUFFER_SIZE)
+
+                if not auth_result.startswith(_AUTH_OK):
+                    _LOGGER.error("receive: %s", auth_result.decode(_ENCODING, "ignore"))
+                    return writer.close()
+
             else:
                 _LOGGER.error("vlc %s: need password", self._params.host)
                 return writer.close()
-
-        auth_result = await reader.read(io.DEFAULT_BUFFER_SIZE)
-
-        if not auth_result.startswith(_AUTH_OK):
-            _LOGGER.error("receive: %s", auth_result.decode(_ENCODING, "ignore"))
-            return writer.close()
 
         writer.write(
             method.encode(_ENCODING) + b" " +

@@ -11,8 +11,13 @@ from .devices import UpnpDeviceFinder, ChromecastDeviceFinder, VlcDeviceFinder, 
 from .tools import named_media_types, build_uri
 
 
-REMOVE_KEYBOARD = ReplyKeyboardRemove()
-CANCEL_BUTTON = "^Cancel"
+__all__ = [
+    "Bot"
+]
+
+
+_REMOVE_KEYBOARD = ReplyKeyboardRemove()
+_CANCEL_BUTTON = "^Cancel"
 
 
 class States(enum.Enum):
@@ -93,8 +98,8 @@ class Bot:
 
         self._state_machine.set_state(message, States.NOTHING, False)
 
-        if message.text == CANCEL_BUTTON:
-            await message.reply("Cancelled", reply_markup=REMOVE_KEYBOARD)
+        if message.text == _CANCEL_BUTTON:
+            await message.reply("Cancelled", reply_markup=_REMOVE_KEYBOARD)
             return
 
         try:
@@ -104,7 +109,7 @@ class Bot:
                 if repr(device) == message.text
             )
         except StopIteration:
-            await message.reply("Wrong device", reply_markup=REMOVE_KEYBOARD)
+            await message.reply("Wrong device", reply_markup=_REMOVE_KEYBOARD)
             return
 
         async with async_timeout.timeout(self._config.device_request_timeout) as cm:
@@ -119,14 +124,14 @@ class Bot:
                 await message.reply(
                     "Error while communicate with the device:\n\n"
                     f"<code>{html.escape(str(ex))}</code>",
-                    reply_markup=REMOVE_KEYBOARD
+                    reply_markup=_REMOVE_KEYBOARD
                 )
 
             else:
-                await message.reply(f"Playing ID: {data.msg_id}", reply_markup=REMOVE_KEYBOARD)
+                await message.reply(f"Playing ID: {data.msg_id}", reply_markup=_REMOVE_KEYBOARD)
 
         if cm.expired:
-            await message.reply(f"Timeout while communicate with the device", reply_markup=REMOVE_KEYBOARD)
+            await message.reply(f"Timeout while communicate with the device", reply_markup=_REMOVE_KEYBOARD)
 
     # noinspection PyUnusedLocal
     async def _new_document(self, client: Client, message: Message):
@@ -146,13 +151,13 @@ class Bot:
             devices.extend(await VlcDeviceFinder.find(self._config))
 
         if devices:
-            file_name = ""
+            filename = ""
 
             for typ in named_media_types:
                 obj = getattr(message, typ)
 
                 if obj is not None:
-                    file_name = obj.file_name
+                    filename = obj.file_name
                     break
 
             self._state_machine.set_state(
@@ -160,15 +165,15 @@ class Bot:
                 States.SELECT,
                 SelectStateData(
                     message.message_id,
-                    file_name,
+                    filename,
                     devices.copy()
                 )
             )
 
             buttons = [[KeyboardButton(repr(device))] for device in devices]
-            buttons.append([KeyboardButton(CANCEL_BUTTON)])
+            buttons.append([KeyboardButton(_CANCEL_BUTTON)])
             markup = ReplyKeyboardMarkup(buttons, one_time_keyboard=True)
             await message.reply("Select a device", reply_markup=markup)
 
         else:
-            await message.reply("Supported devices not found in the network", reply_markup=REMOVE_KEYBOARD)
+            await message.reply("Supported devices not found in the network", reply_markup=_REMOVE_KEYBOARD)

@@ -4,6 +4,12 @@ import typing
 from smart_tv_telegram import Config
 
 
+__all__ = [
+    "Device",
+    "DeviceFinder"
+]
+
+
 class Device(abc.ABC):
     # noinspection PyUnusedLocal
     @abc.abstractmethod

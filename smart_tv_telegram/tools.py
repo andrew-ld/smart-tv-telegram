@@ -8,11 +8,22 @@ from pyrogram.api.types import Message, MessageMediaDocument, Document, Document
 from smart_tv_telegram import Config
 
 
-range_regex = re.compile(r"bytes=([0-9]+)-([0-9]+)?")
 named_media_types = ["document", "video", "audio", "video_note", "animation"]
 
-_executor = concurrent.futures.ThreadPoolExecutor()
-_loop = asyncio.get_event_loop()
+
+__all__ = [
+    "named_media_types",
+    "mtproto_filename",
+    "build_uri",
+    "ascii_only",
+    "run_method_in_executor",
+    "parse_http_range"
+]
+
+
+_RANGE_REGEX = re.compile(r"bytes=([0-9]+)-([0-9]+)?")
+_EXECUTOR = concurrent.futures.ThreadPoolExecutor()
+_LOOP = asyncio.get_event_loop()
 
 
 def mtproto_filename(message: Message) -> str:
@@ -42,12 +53,12 @@ def ascii_only(haystack: str) -> str:
 
 def run_method_in_executor(func):
     async def wraps(*args):
-        return await _loop.run_in_executor(_executor, func, *args)
+        return await _LOOP.run_in_executor(_EXECUTOR, func, *args)
     return wraps
 
 
 def parse_http_range(http_range: str, block_size: int) -> typing.Tuple[int, int, typing.Optional[int]]:
-    matches = range_regex.search(http_range)
+    matches = _RANGE_REGEX.search(http_range)
 
     if matches is None:
         raise ValueError()
