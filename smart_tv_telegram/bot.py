@@ -6,6 +6,7 @@ import html
 
 import async_timeout
 from pyrogram import Message, MessageHandler, Filters, ReplyKeyboardMarkup, KeyboardButton, Client, ReplyKeyboardRemove
+from pyrogram.client.filters.filters import create
 
 from . import Config, Mtproto
 from .devices import UpnpDeviceFinder, ChromecastDeviceFinder, VlcDeviceFinder, XbmcDeviceFinder, Device
@@ -80,22 +81,20 @@ class Bot:
 
     def prepare(self):
         admin_filter = Filters.chat(self._config.admins) & Filters.private
+        state_filter = create(lambda _, m: self._state_machine.get_state(m)[0] == States.SELECT)
+
         self._mtproto.register(MessageHandler(self._new_document, Filters.document & admin_filter))
         self._mtproto.register(MessageHandler(self._new_document, Filters.video & admin_filter))
         self._mtproto.register(MessageHandler(self._new_document, Filters.audio & admin_filter))
         self._mtproto.register(MessageHandler(self._new_document, Filters.animation & admin_filter))
         self._mtproto.register(MessageHandler(self._new_document, Filters.voice & admin_filter))
         self._mtproto.register(MessageHandler(self._new_document, Filters.video_note & admin_filter))
-        self._mtproto.register(MessageHandler(self._play, Filters.text & admin_filter))
 
-    # noinspection PyUnusedLocal
-    async def _play(self, client: Client, message: Message):
-        state, data = self._state_machine.get_state(message)
+        self._mtproto.register(MessageHandler(self._select_device, Filters.text & admin_filter & state_filter))
 
-        if state != States.SELECT:
-            return
-
+    async def _select_device(self, _: Client, message: Message):
         data: SelectStateData
+        _, data = self._state_machine.get_state(message)
 
         self._state_machine.set_state(message, States.NOTHING, False)
         reply = functools.partial(message.reply, reply_markup=_REMOVE_KEYBOARD)
@@ -134,8 +133,7 @@ class Bot:
         if cm.expired:
             await reply(f"Timeout while communicate with the device")
 
-    # noinspection PyUnusedLocal
-    async def _new_document(self, client: Client, message: Message):
+    async def _new_document(self, _: Client, message: Message):
         devices = []
 
         if self._config.upnp_enabled:
