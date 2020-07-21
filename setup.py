@@ -26,4 +26,9 @@ setuptools.setup(
     ],
     install_requires=requirements,
     python_requires=">=3.6",
+    entry_points={
+        "console_scripts": [
+            "smart_tv_telegram=smart_tv_telegram.__main__:arg_parser"
+        ],
+    }
 )

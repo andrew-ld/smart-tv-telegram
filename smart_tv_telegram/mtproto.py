@@ -30,7 +30,7 @@ class Mtproto:
     def __init__(self, config: Config):
         self._config = config
         self._client = pyrogram.Client(config.session_name, config.api_id, config.api_hash,
-                                       bot_token=config.token, sleep_threshold=0)
+                                       bot_token=config.token, sleep_threshold=0, workdir=os.getcwd())
 
     def register(self, handler: Handler):
         self._client.add_handler(handler)
