@@ -78,7 +78,7 @@ class Bot:
         self._state_machine = TelegramStateMachine()
 
     def prepare(self):
-        admin_filter = Filters.chat(self._config.admins)
+        admin_filter = Filters.chat(self._config.admins) & Filters.private
         self._mtproto.register(MessageHandler(self._new_document, Filters.document & admin_filter))
         self._mtproto.register(MessageHandler(self._new_document, Filters.video & admin_filter))
         self._mtproto.register(MessageHandler(self._new_document, Filters.audio & admin_filter))
