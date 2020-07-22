@@ -25,10 +25,10 @@ Make sure you have an updated version of python, only the latest version will be
 ```bash
 git clone https://github.com/andrew-ld/smart-tv-telegram
 cd smart-tv-telegram
-python3 -m pip install -r requirements.txt
+python3 setup.py install
 cp config.ini.example config.ini
 nano config.ini
-python3 .
+smart_tv_telegram -c config.ini -v 1
 ```
 
 ## How-to setup (Docker)
@@ -46,11 +46,6 @@ docker run --network host -v "$(pwd)/config.ini:/app/config.ini:ro" -d smart-tv-
 
 ## Troubleshooting
 
-**Q:** How-To control logging level
-
-**A:** Start the script with `debug` or `production` argument, ex: `python3 . debug`
-
-##
 **Q:** My Firewall block upnp and broadcasting, how can use kodi without it
 
 **A:** Set `xbmc_enabled` to `1` and add your kodi device to `xbmc_devices` list
