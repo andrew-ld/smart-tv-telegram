@@ -25,7 +25,8 @@ Make sure you have an updated version of python, only the latest version will be
 ```bash
 git clone https://github.com/andrew-ld/smart-tv-telegram
 cd smart-tv-telegram
-python3 setup.py install
+python3 setup.py sdist bdist_wheel
+python3 -m pip install dist/*.whl
 cp config.ini.example config.ini
 nano config.ini
 smart_tv_telegram -c config.ini -v 1

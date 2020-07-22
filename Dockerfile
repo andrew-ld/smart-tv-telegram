@@ -1,11 +1,17 @@
 FROM python:3
 
-WORKDIR /app/
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /tmp/setup
 
 COPY . .
 
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN python3 setup.py sdist bdist_wheel
 
-RUN python -OO -m compileall .
+RUN python3 -m pip install --no-cache-dir dist/*.whl
 
-CMD ["python", "."]
+WORKDIR /app
+
+RUN rm -rf /tmp/setup
+
+CMD ["smart_tv_telegram"]
