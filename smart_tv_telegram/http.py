@@ -29,6 +29,7 @@ class Http:
         app.add_routes([web.get("/stream/{message_id}", self._stream_handler)])
         app.add_routes([web.options("/stream/{message_id}", self._upnp_discovery_handler)])
         app.add_routes([web.put("/stream/{message_id}", self._upnp_discovery_handler)])
+        app.add_routes([web.get("/healthcheck", self._health_check_handler)])
 
         # noinspection PyProtectedMember
         await aiohttp.web._run_app(app, host=self._config.listen_host, port=self._config.listen_port)
@@ -44,6 +45,14 @@ class Http:
 
     def _write_filename_header(self, result: typing.Union[Response, StreamResponse], filename: str):
         result.headers.setdefault("Content-Disposition", f'inline; filename="{quote(filename)}"')
+
+    # noinspection PyUnusedLocal
+    async def _health_check_handler(self, request: Request) -> typing.Optional[Response]:
+        try:
+            await self._mtproto.health_check()
+            return Response(status=200, text="ok")
+        except ConnectionError:
+            return Response(status=500, text="gone")
 
     # noinspection PyUnusedLocal
     async def _upnp_discovery_handler(self, request: Request) -> typing.Optional[Response]:

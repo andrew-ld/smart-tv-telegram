@@ -11,7 +11,7 @@ with open("requirements.txt") as fh:
 
 setuptools.setup(
     name="smart_tv_telegram",
-    version="1.0.0",
+    version_format="{commitcount}.devN",
     author="andrew-ld",
     author_email="andrew-ld@protonmail.com",
     description="A Telegram Bot to stream content on your smart TV",
@@ -24,6 +24,7 @@ setuptools.setup(
         "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
         "Operating System :: OS Independent",
     ],
+    setup_requires=["setuptools-git-version"],
     install_requires=requirements,
     python_requires=">=3.6",
     entry_points={

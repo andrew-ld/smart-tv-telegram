@@ -49,6 +49,16 @@ class Mtproto:
 
         return message
 
+    async def health_check(self):
+        if not all(
+            session.is_connected.is_set()
+            for session in (
+                *self._client.media_sessions.values(),
+                self._client.session
+            )
+        ):
+            raise ConnectionError()
+
     async def get_block(self, message: Message, offset: int, block_size: int) -> bytes:
         session = self._client.media_sessions.get(message.media.document.dc_id)
 
