@@ -3,30 +3,41 @@ import concurrent.futures
 import re
 import typing
 
-from pyrogram.api.types import Message, MessageMediaDocument, Document, DocumentAttributeFilename
+from pyrogram.api.types import MessageMediaDocument, Document, DocumentAttributeFilename
+from pyrogram.api.types import Message as TlMessage
+from pyrogram import Message as BoxedMessage
 
-from smart_tv_telegram import Config
-
-
-named_media_types = ["document", "video", "audio", "video_note", "animation"]
+from . import Config
 
 
 __all__ = [
-    "named_media_types",
     "mtproto_filename",
     "build_uri",
     "ascii_only",
     "run_method_in_executor",
-    "parse_http_range"
+    "parse_http_range",
+    "pyrogram_filename"
 ]
 
 
+_NAMED_MEDIA_TYPES = ("document", "video", "audio", "video_note", "animation")
 _RANGE_REGEX = re.compile(r"bytes=([0-9]+)-([0-9]+)?")
 _EXECUTOR = concurrent.futures.ThreadPoolExecutor()
 _LOOP = asyncio.get_event_loop()
 
 
-def mtproto_filename(message: Message) -> str:
+def pyrogram_filename(message: BoxedMessage) -> str:
+    try:
+        return next(
+            getattr(message, t).file_name
+            for t in _NAMED_MEDIA_TYPES
+            if getattr(message, t) is not None
+        )
+    except StopIteration:
+        raise TypeError()
+
+
+def mtproto_filename(message: TlMessage) -> str:
     if not (
         isinstance(message.media, MessageMediaDocument) and
         isinstance(message.media.document, Document)

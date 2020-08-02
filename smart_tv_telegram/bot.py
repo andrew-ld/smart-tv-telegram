@@ -10,7 +10,7 @@ from pyrogram.client.filters.filters import create
 
 from . import Config, Mtproto
 from .devices import UpnpDeviceFinder, ChromecastDeviceFinder, VlcDeviceFinder, XbmcDeviceFinder, Device
-from .tools import named_media_types, build_uri
+from .tools import build_uri, pyrogram_filename
 
 
 __all__ = [
@@ -150,14 +150,10 @@ class Bot:
             devices.extend(await VlcDeviceFinder.find(self._config))
 
         if devices:
-            filename = ""
-
-            for typ in named_media_types:
-                obj = getattr(message, typ)
-
-                if obj is not None:
-                    filename = obj.file_name
-                    break
+            try:
+                filename = pyrogram_filename(message)
+            except TypeError:
+                filename = "NaN"
 
             self._state_machine.set_state(
                 message,

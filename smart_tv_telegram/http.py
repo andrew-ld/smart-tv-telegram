@@ -46,16 +46,14 @@ class Http:
     def _write_filename_header(self, result: typing.Union[Response, StreamResponse], filename: str):
         result.headers.setdefault("Content-Disposition", f'inline; filename="{quote(filename)}"')
 
-    # noinspection PyUnusedLocal
-    async def _health_check_handler(self, request: Request) -> typing.Optional[Response]:
+    async def _health_check_handler(self, _: Request) -> typing.Optional[Response]:
         try:
             await self._mtproto.health_check()
             return Response(status=200, text="ok")
         except ConnectionError:
             return Response(status=500, text="gone")
 
-    # noinspection PyUnusedLocal
-    async def _upnp_discovery_handler(self, request: Request) -> typing.Optional[Response]:
+    async def _upnp_discovery_handler(self, _: Request) -> typing.Optional[Response]:
         result = Response(status=200)
         self._write_upnp_headers(result)
         return result
