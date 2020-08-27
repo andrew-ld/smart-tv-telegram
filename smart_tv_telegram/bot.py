@@ -5,8 +5,10 @@ import enum
 import html
 
 import async_timeout
-from pyrogram import Message, MessageHandler, Filters, ReplyKeyboardMarkup, KeyboardButton, Client, ReplyKeyboardRemove
-from pyrogram.client.filters.filters import create
+from pyrogram import Client, filters
+from pyrogram.filters import create
+from pyrogram.handlers import MessageHandler
+from pyrogram.types import ReplyKeyboardRemove, Message, KeyboardButton, ReplyKeyboardMarkup
 
 from . import Config, Mtproto
 from .devices import UpnpDeviceFinder, ChromecastDeviceFinder, VlcDeviceFinder, XbmcDeviceFinder, Device
@@ -80,17 +82,16 @@ class Bot:
         self._state_machine = TelegramStateMachine()
 
     def prepare(self):
-        admin_filter = Filters.chat(self._config.admins) & Filters.private
-        state_filter = create(lambda _, m: self._state_machine.get_state(m)[0] == States.SELECT)
+        admin_filter = filters.chat(self._config.admins) & filters.private
+        self._mtproto.register(MessageHandler(self._new_document, filters.document & admin_filter))
+        self._mtproto.register(MessageHandler(self._new_document, filters.video & admin_filter))
+        self._mtproto.register(MessageHandler(self._new_document, filters.audio & admin_filter))
+        self._mtproto.register(MessageHandler(self._new_document, filters.animation & admin_filter))
+        self._mtproto.register(MessageHandler(self._new_document, filters.voice & admin_filter))
+        self._mtproto.register(MessageHandler(self._new_document, filters.video_note & admin_filter))
 
-        self._mtproto.register(MessageHandler(self._new_document, Filters.document & admin_filter))
-        self._mtproto.register(MessageHandler(self._new_document, Filters.video & admin_filter))
-        self._mtproto.register(MessageHandler(self._new_document, Filters.audio & admin_filter))
-        self._mtproto.register(MessageHandler(self._new_document, Filters.animation & admin_filter))
-        self._mtproto.register(MessageHandler(self._new_document, Filters.voice & admin_filter))
-        self._mtproto.register(MessageHandler(self._new_document, Filters.video_note & admin_filter))
-
-        self._mtproto.register(MessageHandler(self._select_device, Filters.text & admin_filter & state_filter))
+        state_filter = create(lambda _, __, m: self._state_machine.get_state(m)[0] == States.SELECT)
+        self._mtproto.register(MessageHandler(self._select_device, filters.text & admin_filter & state_filter))
 
     async def _select_device(self, _: Client, message: Message):
         data: SelectStateData

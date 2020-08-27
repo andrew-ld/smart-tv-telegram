@@ -5,7 +5,7 @@ import aiohttp.web
 from aiohttp import web
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response, StreamResponse
-from pyrogram.api.types import MessageMediaDocument, Document
+from pyrogram.raw.types import MessageMediaDocument, Document
 
 from . import Config, Mtproto
 from .tools import parse_http_range, mtproto_filename

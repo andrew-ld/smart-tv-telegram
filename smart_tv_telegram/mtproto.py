@@ -6,12 +6,12 @@ import pickle
 import pyrogram
 
 from async_lru import alru_cache
-from pyrogram.api.functions.auth import ExportAuthorization, ImportAuthorization
-from pyrogram.api.functions.help import GetConfig
-from pyrogram.api.functions.messages import GetMessages
-from pyrogram.api.functions.upload import GetFile
-from pyrogram.api.types import InputMessageID, Message, InputDocumentFileLocation
-from pyrogram.client.handlers.handler import Handler
+from pyrogram.handlers.handler import Handler
+from pyrogram.raw.functions.auth import ExportAuthorization, ImportAuthorization
+from pyrogram.raw.functions.help import GetConfig
+from pyrogram.raw.functions.messages import GetMessages
+from pyrogram.raw.functions.upload import GetFile
+from pyrogram.raw.types import InputMessageID, Message, InputDocumentFileLocation
 from pyrogram.errors import FloodWait
 from pyrogram.session import Session
 
@@ -96,13 +96,13 @@ class Mtproto:
             keys = {}
 
         for dc_id in dc_ids:
-            session = functools.partial(pyrogram.session.Session, self._client, dc_id, is_media=True)
+            session = functools.partial(pyrogram.session.Session, self._client, dc_id, is_media=True, test_mode=False)
 
-            if dc_id != self._client.storage.dc_id():
+            if dc_id != await self._client.storage.dc_id():
                 if dc_id not in keys:
                     exported_auth = await self._client.send(ExportAuthorization(dc_id=dc_id))
 
-                    auth = pyrogram.session.Auth(self._client, dc_id)
+                    auth = pyrogram.session.Auth(self._client, dc_id, False)
                     auth_key = await auth.create()
 
                     session = session(auth_key)
@@ -116,7 +116,7 @@ class Mtproto:
                     await session.start()
 
             else:
-                session = session(self._client.storage.auth_key())
+                session = session(await self._client.storage.auth_key())
                 await session.start()
 
             self._client.media_sessions[dc_id] = session

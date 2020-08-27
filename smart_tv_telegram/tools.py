@@ -3,9 +3,9 @@ import concurrent.futures
 import re
 import typing
 
-from pyrogram.api.types import MessageMediaDocument, Document, DocumentAttributeFilename
-from pyrogram.api.types import Message as TlMessage
-from pyrogram import Message as BoxedMessage
+from pyrogram.raw.types import MessageMediaDocument, Document, DocumentAttributeFilename
+from pyrogram.raw.types import Message as TlMessage
+from pyrogram.types import Message as BoxedMessage
 
 from . import Config
 
