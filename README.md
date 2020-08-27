@@ -1,6 +1,10 @@
 # smart-tv-telegram
 A Telegram Bot to stream content on your smart TV (also Chromecast, FireTV and other UPnP device)
 
+### Demonstration video
+[![poc](https://i.ibb.co/ct8Qb3z/Screenshot-20200827-200637.png)](https://player.vimeo.com/video/452289383)
+
+
 ## Feature
 - Streaming, the bot will not have to download the entire file before playing it on your device
 - You can play anything if your device has the right codec
