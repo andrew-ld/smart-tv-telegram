@@ -1,0 +1,13 @@
+venv/
+.cache
+*.session-journal
+*.session
+*.keys
+__pycache__/
+*.pyc
+config.ini
+.idea/
+dist/
+build/
+*.egg-info/
+.git/

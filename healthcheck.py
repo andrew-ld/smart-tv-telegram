@@ -16,5 +16,5 @@ def main(config: Config) -> int:
 
 
 if __name__ == "__main__":
-    _config = Config("/app/config.ini")
+    _config = Config(sys.argv[-1])
     sys.exit(main(_config))
