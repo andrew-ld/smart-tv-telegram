@@ -1,4 +1,4 @@
-# smart-tv-telegram
+# smart-tv-telegram ![PyPI](https://img.shields.io/pypi/v/smart-tv-telegram) ![PyPI - License](https://img.shields.io/pypi/l/smart-tv-telegram)
 A Telegram Bot to stream content on your smart TV (also Chromecast, FireTV and other UPnP device)
 
 ### Demonstration video
