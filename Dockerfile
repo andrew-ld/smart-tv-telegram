@@ -16,6 +16,6 @@ RUN rm -rf /tmp/setup
 
 COPY healthcheck.py /
 
-HEALTHCHECK --interval=10s --timeout=3s CMD ["/healthcheck.py", "/app/config.ini"]
+HEALTHCHECK CMD ["/healthcheck.py", "/app/config.ini"]
 
 CMD ["smart_tv_telegram"]
