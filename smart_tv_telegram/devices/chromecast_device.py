@@ -40,5 +40,5 @@ class ChromecastDeviceFinder(DeviceFinder):
         return [
             ChromecastDevice(device)
             for device in pychromecast.get_chromecasts(
-                timeout=config.chromecast_scan_timeout)
+                timeout=config.chromecast_scan_timeout)[0]
         ]
