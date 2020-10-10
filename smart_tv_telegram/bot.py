@@ -10,10 +10,9 @@ from pyrogram.filters import create
 from pyrogram.handlers import MessageHandler
 from pyrogram.types import ReplyKeyboardRemove, Message, KeyboardButton, ReplyKeyboardMarkup
 
-from . import Config, Mtproto
+from . import Config, Mtproto, Http
 from .devices import UpnpDeviceFinder, ChromecastDeviceFinder, VlcDeviceFinder, XbmcDeviceFinder, Device
-from .tools import build_uri, pyrogram_filename
-
+from .tools import build_uri, pyrogram_filename, secret_token
 
 __all__ = [
     "Bot"
@@ -75,10 +74,12 @@ class Bot:
     _config: Config
     _state_machine: TelegramStateMachine
     _mtproto: Mtproto
+    _http: Http
 
-    def __init__(self, mtproto: Mtproto, config: Config):
+    def __init__(self, mtproto: Mtproto, config: Config, http: Http):
         self._config = config
         self._mtproto = mtproto
+        self._http = http
         self._state_machine = TelegramStateMachine()
 
     def prepare(self):
@@ -115,7 +116,9 @@ class Bot:
             return
 
         async with async_timeout.timeout(self._config.device_request_timeout) as cm:
-            uri = build_uri(self._config, data.msg_id)
+            token = secret_token()
+            self._http.add_token(data.msg_id, token)
+            uri = build_uri(self._config, data.msg_id, token)
 
             # noinspection PyBroadException
             try:

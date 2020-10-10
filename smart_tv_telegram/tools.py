@@ -1,6 +1,7 @@
 import asyncio
 import concurrent.futures
 import re
+import secrets
 import typing
 
 from pyrogram.raw.types import MessageMediaDocument, Document, DocumentAttributeFilename
@@ -16,7 +17,9 @@ __all__ = [
     "ascii_only",
     "run_method_in_executor",
     "parse_http_range",
-    "pyrogram_filename"
+    "pyrogram_filename",
+    "secret_token",
+    "serialize_token"
 ]
 
 
@@ -24,6 +27,14 @@ _NAMED_MEDIA_TYPES = ("document", "video", "audio", "video_note", "animation")
 _RANGE_REGEX = re.compile(r"bytes=([0-9]+)-([0-9]+)?")
 _EXECUTOR = concurrent.futures.ThreadPoolExecutor()
 _LOOP = asyncio.get_event_loop()
+
+
+def secret_token(nbytes: int = 8) -> int:
+    return int.from_bytes(secrets.token_bytes(nbytes=nbytes), "big")
+
+
+def serialize_token(message_id: int, token: int) -> int:
+    return (token << 64) ^ message_id
 
 
 def pyrogram_filename(message: BoxedMessage) -> str:
@@ -54,8 +65,8 @@ def mtproto_filename(message: TlMessage) -> str:
         raise TypeError()
 
 
-def build_uri(config: Config, msg_id: int) -> str:
-    return f"http://{config.listen_host}:{config.listen_port}/stream/{msg_id}"
+def build_uri(config: Config, msg_id: int, token: int) -> str:
+    return f"http://{config.listen_host}:{config.listen_port}/stream/{msg_id}/{token}"
 
 
 def ascii_only(haystack: str) -> str:

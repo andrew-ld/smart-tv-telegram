@@ -8,8 +8,7 @@ from aiohttp.web_response import Response, StreamResponse
 from pyrogram.raw.types import MessageMediaDocument, Document
 
 from . import Config, Mtproto
-from .tools import parse_http_range, mtproto_filename
-
+from .tools import parse_http_range, mtproto_filename, serialize_token
 
 __all__ = [
     "Http"
@@ -19,20 +18,28 @@ __all__ = [
 class Http:
     _mtproto: Mtproto
     _config: Config
+    _tokens: typing.Set[int]
 
     def __init__(self, mtproto: Mtproto, config: Config):
         self._mtproto = mtproto
         self._config = config
+        self._tokens = set()
 
     async def start(self):
         app = web.Application()
-        app.add_routes([web.get("/stream/{message_id}", self._stream_handler)])
-        app.add_routes([web.options("/stream/{message_id}", self._upnp_discovery_handler)])
-        app.add_routes([web.put("/stream/{message_id}", self._upnp_discovery_handler)])
+        app.add_routes([web.get("/stream/{message_id}/{token}", self._stream_handler)])
+        app.add_routes([web.options("/stream/{message_id}/{token}", self._upnp_discovery_handler)])
+        app.add_routes([web.put("/stream/{message_id}/{token}", self._upnp_discovery_handler)])
         app.add_routes([web.get("/healthcheck", self._health_check_handler)])
 
         # noinspection PyProtectedMember
         await aiohttp.web._run_app(app, host=self._config.listen_host, port=self._config.listen_port)
+
+    def add_token(self, message_id: int, token: int):
+        self._tokens.add(serialize_token(message_id, token))
+
+    def _check_token(self, message_id: int, token: int):
+        return serialize_token(message_id, token) in self._tokens
 
     def _write_upnp_headers(self, result: typing.Union[Response, StreamResponse]):
         result.headers.setdefault("Content-Type", "video/mp4")
@@ -63,6 +70,14 @@ class Http:
 
         if not message_id.isdigit():
             return Response(status=401)
+
+        token: str = request.match_info["token"]
+
+        if not token.isdigit():
+            return Response(status=401)
+
+        if not self._check_token(int(message_id), int(token)):
+            return Response(status=403)
 
         range_header = request.headers.get("Range")
 

@@ -28,7 +28,7 @@ async def async_main(config: Config):
     mtproto = Mtproto(config)
     http = Http(mtproto, config)
 
-    bot = Bot(mtproto, config)
+    bot = Bot(mtproto, config, http)
     bot.prepare()
 
     await mtproto.start()
