@@ -8,7 +8,7 @@ __all__ = [
 ]
 
 
-class Config:
+class  Config:
     _api_id: int
     _api_hash: str
     _token: str
@@ -32,6 +32,8 @@ class Config:
     _vlc_enabled: bool
     _vlc_devices: typing.List[dict]
 
+    _request_gone_timeout: int
+
     _admins: typing.List[int]
     _block_size: int
 
@@ -47,6 +49,8 @@ class Config:
 
         self._listen_port = int(config["http"]["listen_port"])
         self._listen_host = str(config["http"]["listen_host"])
+
+        self._request_gone_timeout = int(config["bot"]["request_gone_timeout"])
 
         self._upnp_enabled = bool(int(config["discovery"]["upnp_enabled"]))
 
@@ -96,6 +100,10 @@ class Config:
 
         if not all(isinstance(x, int) for x in self._admins):
             raise ValueError("admins list should contain only integers")
+
+    @property
+    def request_gone_timeout(self) -> int:
+        return self._request_gone_timeout
 
     @property
     def file_fake_fw_wait(self) -> float:

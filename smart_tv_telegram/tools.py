@@ -19,7 +19,8 @@ __all__ = [
     "parse_http_range",
     "pyrogram_filename",
     "secret_token",
-    "serialize_token"
+    "serialize_token",
+    "AsyncDebounce"
 ]
 
 
@@ -27,6 +28,35 @@ _NAMED_MEDIA_TYPES = ("document", "video", "audio", "video_note", "animation")
 _RANGE_REGEX = re.compile(r"bytes=([0-9]+)-([0-9]+)?")
 _EXECUTOR = concurrent.futures.ThreadPoolExecutor()
 _LOOP = asyncio.get_event_loop()
+
+
+async def _debounce_wrap(
+        function: typing.Callable[..., typing.Coroutine],
+        args: typing.Tuple[typing.Any],
+        timeout: int
+):
+    await asyncio.sleep(timeout)
+    await function(*args)
+
+
+class AsyncDebounce:
+    _function: typing.Callable[..., typing.Coroutine]
+    _timeout: int
+    _task: typing.Optional[asyncio.Task] = None
+
+    def __init__(self, function: typing.Callable[..., typing.Coroutine], timeout: int):
+        self._function = function
+        self._timeout = timeout
+
+    def update_args(self, *args) -> bool:
+        if self._task is not None and self._task.done():
+            return False
+
+        if self._task is not None:
+            self._task.cancel()
+
+        self._task = _LOOP.create_task(_debounce_wrap(self._function, args, self._timeout))
+        return True
 
 
 def secret_token(nbytes: int = 8) -> int:

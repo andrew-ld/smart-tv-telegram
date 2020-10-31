@@ -35,6 +35,14 @@ class Mtproto:
     def register(self, handler: Handler):
         self._client.add_handler(handler)
 
+    async def reply_message(self, message_id: int, chat_id: int, text: str):
+        await self._client.send_message(
+            chat_id,
+            text=text,
+            parse_mode="html",
+            reply_to_message_id=message_id
+        )
+
     @alru_cache(cache_exceptions=False)
     async def get_message(self, message_id: int) -> Message:
         messages = await self._client.send(GetMessages(id=[InputMessageID(id=message_id)]))

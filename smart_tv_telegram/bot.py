@@ -118,7 +118,7 @@ class Bot:
 
         async with async_timeout.timeout(self._config.device_request_timeout) as cm:
             token = secret_token()
-            self._http.add_token(data.msg_id, token)
+            self._http.add_remote_token(data.msg_id, token)
             uri = build_uri(self._config, data.msg_id, token)
 
             # noinspection PyBroadException
