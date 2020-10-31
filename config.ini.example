@@ -8,6 +8,7 @@ file_fake_fw_wait=0.2
 [bot]
 admins=[337885031,32432424,44353421]
 block_size=1048576
+request_gone_timeout=60
 
 [http]
 listen_host=192.168.1.2
