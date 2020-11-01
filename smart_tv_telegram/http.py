@@ -1,3 +1,4 @@
+import asyncio
 import typing
 from urllib.parse import quote
 
@@ -23,6 +24,7 @@ class Http:
     _tokens: typing.Set[int]
     _downloaded_blocks: typing.Dict[int, typing.Set[int]]
     _stream_debounce: typing.Dict[int, AsyncDebounce]
+    _stream_trasports: typing.Dict[int, typing.Set[asyncio.Transport]]
 
     def __init__(self, mtproto: Mtproto, config: Config):
         self._mtproto = mtproto
@@ -31,6 +33,7 @@ class Http:
         self._tokens = set()
         self._downloaded_blocks = dict()
         self._stream_debounce = dict()
+        self._stream_trasports = dict()
 
     async def start(self):
         app = web.Application()
@@ -96,21 +99,45 @@ class Http:
         downloaded_blocks = self._downloaded_blocks.setdefault(local_token, set())
         downloaded_blocks.add(block_id)
 
+    def _feed_stream_trasport(self, local_token: int, transport: asyncio.Transport):
+        transports = self._stream_trasports.setdefault(local_token, set())
+        transports.add(transport)
+
+    def _get_stream_transports(self, local_token: int) -> typing.Set[asyncio.Transport]:
+        return self._stream_trasports[local_token] if local_token in self._stream_trasports else set()
+
     async def _timeout_handler(self, message_id: int, chat_id: int, local_token: int, size: int):
-        blocks = size // self._config.block_size
-        remain_blocks = blocks - len(self._downloaded_blocks[local_token])
-        remain_blocks_percentual = remain_blocks / blocks * 100
+        if all(t.is_closing() for t in self._get_stream_transports(local_token)):
+            blocks = (size // self._config.block_size) + 1
 
-        self._tokens.remove(local_token)
-        del self._downloaded_blocks[local_token]
-        _debounce = self._stream_debounce[local_token]  # avoid garbage collector
-        del self._stream_debounce[local_token]
+            if local_token in self._tokens:
+                self._tokens.remove(local_token)
 
-        await self._mtproto.reply_message(
-            message_id,
-            chat_id,
-            f"download closed, {remain_blocks_percentual:0.2f}% remains"
-        )
+            remain_blocks = blocks
+
+            if local_token in self._downloaded_blocks:
+                remain_blocks = blocks - len(self._downloaded_blocks[local_token])
+                del self._downloaded_blocks[local_token]
+
+            _debounce = None
+
+            if local_token in self._stream_debounce:
+                _debounce = self._stream_debounce[local_token]  # avoid garbage collector
+                del self._stream_debounce[local_token]
+
+            if local_token in self._stream_trasports:
+                del self._stream_trasports[local_token]
+
+            remain_blocks_percentual = remain_blocks / blocks * 100
+
+            await self._mtproto.reply_message(
+                message_id,
+                chat_id,
+                f"download closed, {remain_blocks_percentual:0.2f}% remains"
+            )
+
+        if local_token in self._stream_debounce:
+            self._stream_debounce[local_token].reschedule()
 
     async def _stream_handler(self, request: Request) -> typing.Optional[Response]:
         _message_id: str = request.match_info["message_id"]
@@ -199,6 +226,8 @@ class Http:
 
             if request.transport is None:
                 break
+
+            self._feed_stream_trasport(local_token, request.transport)
 
             if request.transport.is_closing():
                 break

@@ -33,7 +33,7 @@ _LOOP = asyncio.get_event_loop()
 async def _debounce_wrap(
         function: typing.Callable[..., typing.Coroutine],
         args: typing.Tuple[typing.Any],
-        timeout: int
+        timeout: int,
 ):
     await asyncio.sleep(timeout)
     await function(*args)
@@ -43,10 +43,18 @@ class AsyncDebounce:
     _function: typing.Callable[..., typing.Coroutine]
     _timeout: int
     _task: typing.Optional[asyncio.Task] = None
+    _args: typing.Optional[typing.Tuple[typing.Any]] = None
 
     def __init__(self, function: typing.Callable[..., typing.Coroutine], timeout: int):
         self._function = function
         self._timeout = timeout
+
+    def _run(self) -> bool:
+        if self._args is None:
+            return False
+
+        self._task = _LOOP.create_task(_debounce_wrap(self._function, self._args, self._timeout))
+        return True
 
     def update_args(self, *args) -> bool:
         if self._task is not None and self._task.done():
@@ -55,8 +63,11 @@ class AsyncDebounce:
         if self._task is not None:
             self._task.cancel()
 
-        self._task = _LOOP.create_task(_debounce_wrap(self._function, args, self._timeout))
-        return True
+        self._args = args
+        return self._run()
+
+    def reschedule(self):
+        return self._run()
 
 
 def secret_token(nbytes: int = 8) -> int:
