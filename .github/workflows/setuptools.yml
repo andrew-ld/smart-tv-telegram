@@ -1,0 +1,31 @@
+name: "setuptools"
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: [3.6, 3.7, 3.8] # TODO: 3.9 is buggy on actions/setup-python@v2
+        
+    steps:
+    - name: Initialize pythom
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    
+    - name: build and install wheel package
+      run: |
+        pip install wheel
+        python setup.py sdist bdist_wheel
+        find dist -name "*.whl" -type f -exec pip install {} \;
+      shell: bash
