@@ -28,5 +28,8 @@ jobs:
         pip install wheel
         python setup.py sdist bdist_wheel
         find dist -name "*.whl" -type f -exec pip install {} \;
-        smart_tv_telegram_tests
       shell: bash
+  
+    - name: unittest
+      run: smart_tv_telegram_tests
+
