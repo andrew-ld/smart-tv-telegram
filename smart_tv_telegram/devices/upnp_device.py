@@ -54,9 +54,9 @@ class UpnpDevice(Device):
 
         try:
             await stop.async_call(InstanceID=0)
-        except UpnpError as e:
-            if "Transition not available" not in str(e):
-                raise e
+        except UpnpError as error:
+            if "Transition not available" not in str(error):
+                raise error
 
     async def play(self, url: str, title: str):
         set_url = self._service.action("SetAVTransportURI")

@@ -2,7 +2,6 @@ import asyncio
 import typing
 from urllib.parse import quote
 
-import aiohttp.web
 from aiohttp import web
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response, StreamResponse
@@ -43,7 +42,7 @@ class Http:
         app.add_routes([web.get("/healthcheck", self._health_check_handler)])
 
         # noinspection PyProtectedMember
-        await aiohttp.web._run_app(app, host=self._config.listen_host, port=self._config.listen_port)
+        await web._run_app(app, host=self._config.listen_host, port=self._config.listen_port)
 
     def add_remote_token(self, message_id: int, partial_remote_token: int):
         local_token = serialize_token(message_id, partial_remote_token)
@@ -52,8 +51,8 @@ class Http:
     def _check_local_token(self, local_token: int) -> bool:
         return local_token in self._tokens
 
+    @staticmethod
     def _write_http_range_headers(
-            self,
             result: typing.Union[Response, StreamResponse],
             read_after: int,
             size: int,
@@ -63,7 +62,8 @@ class Http:
         result.headers.setdefault("Accept-Ranges", "bytes")
         result.headers.setdefault("Content-Length", str(size))
 
-    def _write_upnp_headers(self, result: typing.Union[Response, StreamResponse]):
+    @staticmethod
+    def _write_upnp_headers(result: typing.Union[Response, StreamResponse]):
         result.headers.setdefault("Content-Type", "video/mp4")
         result.headers.setdefault("Access-Control-Allow-Origin", "*")
         result.headers.setdefault("Access-Control-Allow-Methods", "GET, OPTIONS")
@@ -72,7 +72,8 @@ class Http:
         result.headers.setdefault("TimeSeekRange.dlna.org", "npt=0.00-")
         result.headers.setdefault("contentFeatures.dlna.org", "DLNA.ORG_OP=01;DLNA.ORG_CI=0;")
 
-    def _write_filename_header(self, result: typing.Union[Response, StreamResponse], filename: str):
+    @staticmethod
+    def _write_filename_header(result: typing.Union[Response, StreamResponse], filename: str):
         result.headers.setdefault("Content-Disposition", f'inline; filename="{quote(filename)}"')
 
     async def _health_check_handler(self, _: Request) -> typing.Optional[Response]:

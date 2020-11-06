@@ -4,8 +4,9 @@ import asyncio
 import json
 import logging
 import uuid
-import aiohttp
 import typing
+
+import aiohttp
 
 from .. import Config
 from . import Device, DeviceFinder
@@ -18,7 +19,7 @@ __all__ = [
 
 
 _LOGGER = logging.getLogger(__name__)
-_ARG_TYPE = typing.Union[typing.AnyStr, int, bool]
+_ARGTYPE = typing.Union[typing.AnyStr, int, bool]
 
 _JSON_HEADERS = {"content-type": "application/json"}
 _JSONRPC_VERSION = "2.0"
@@ -78,7 +79,7 @@ class XbmcDevice(Device):
     def get_device_name(self) -> str:
         return f"xbmc @{self._host}"
 
-    async def _call(self, method: str, **args: typing.Union[_ARG_TYPE, typing.Mapping[str, _ARG_TYPE]]):
+    async def _call(self, method: str, **args: typing.Union[_ARGTYPE, typing.Mapping[str, _ARGTYPE]]):
         data = {
             _ATTR_JSONRPC: _JSONRPC_VERSION,
             _ATTR_METHOD: method,

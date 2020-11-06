@@ -85,8 +85,8 @@ def pyrogram_filename(message: BoxedMessage) -> str:
             for t in _NAMED_MEDIA_TYPES
             if getattr(message, t) is not None
         )
-    except StopIteration:
-        raise TypeError()
+    except StopIteration as error:
+        raise TypeError() from error
 
 
 def mtproto_filename(message: TlMessage) -> str:
@@ -102,8 +102,8 @@ def mtproto_filename(message: TlMessage) -> str:
             for attr in message.media.document.attributes
             if isinstance(attr, DocumentAttributeFilename)
         )
-    except StopIteration:
-        raise TypeError()
+    except StopIteration as error:
+        raise TypeError() from error
 
 
 def build_uri(config: Config, msg_id: int, token: int) -> str:

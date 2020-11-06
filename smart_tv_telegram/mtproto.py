@@ -13,7 +13,7 @@ from pyrogram.raw.functions.messages import GetMessages
 from pyrogram.raw.functions.upload import GetFile
 from pyrogram.raw.types import InputMessageID, Message, InputDocumentFileLocation
 from pyrogram.errors import FloodWait
-from pyrogram.session import Session
+import pyrogram.session
 
 from . import Config
 
@@ -70,7 +70,7 @@ class Mtproto:
     async def get_block(self, message: Message, offset: int, block_size: int) -> bytes:
         session = self._client.media_sessions.get(message.media.document.dc_id)
 
-        r = GetFile(
+        request = GetFile(
             offset=offset,
             limit=block_size,
             location=InputDocumentFileLocation(
@@ -83,7 +83,7 @@ class Mtproto:
 
         while True:
             try:
-                result = await session.send(r, sleep_threshold=0)
+                result = await session.send(request, sleep_threshold=0)
             except FloodWait:  # file floodwait is fake
                 await asyncio.sleep(self._config.file_fake_fw_wait)
             else:

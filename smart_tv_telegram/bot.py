@@ -116,7 +116,7 @@ class Bot:
             await reply("Wrong device")
             return
 
-        async with async_timeout.timeout(self._config.device_request_timeout) as cm:
+        async with async_timeout.timeout(self._config.device_request_timeout) as timeout_context:
             token = secret_token()
             self._http.add_remote_token(data.msg_id, token)
             uri = build_uri(self._config, data.msg_id, token)
@@ -135,8 +135,8 @@ class Bot:
             else:
                 await reply(f"Playing ID: {data.msg_id}")
 
-        if cm.expired:
-            await reply(f"Timeout while communicate with the device")
+        if timeout_context.expired:
+            await reply("Timeout while communicate with the device")
 
     async def _new_document(self, _: Client, message: Message):
         devices = []

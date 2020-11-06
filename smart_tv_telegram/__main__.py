@@ -5,7 +5,7 @@ import argparse
 import os.path
 import unittest
 
-from smart_tv_telegram import Http, Mtproto, Config
+from smart_tv_telegram import Http, Mtproto, Config, Bot
 from smart_tv_telegram.tests import test_tools, test_http
 
 
