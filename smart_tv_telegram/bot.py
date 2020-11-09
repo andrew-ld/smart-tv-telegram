@@ -1,5 +1,6 @@
 import abc
 import functools
+import traceback
 import typing
 import enum
 import html
@@ -127,6 +128,8 @@ class Bot:
                 await device.play(uri, data.filename)
 
             except Exception as ex:
+                traceback.print_exc()
+
                 await reply(
                     "Error while communicate with the device:\n\n"
                     f"<code>{html.escape(str(ex))}</code>"
