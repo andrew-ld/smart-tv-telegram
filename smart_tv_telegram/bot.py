@@ -161,14 +161,14 @@ class Bot:
             try:
                 filename = pyrogram_filename(message)
             except TypeError:
-                filename = "NaN"
+                filename = "None"
 
             self._state_machine.set_state(
                 message,
                 States.SELECT,
                 SelectStateData(
                     message.message_id,
-                    filename,
+                    str(filename),
                     devices.copy()
                 )
             )
