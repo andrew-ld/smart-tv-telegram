@@ -108,6 +108,8 @@ class Http:
         return self._stream_trasports[local_token] if local_token in self._stream_trasports else set()
 
     async def _timeout_handler(self, message_id: int, chat_id: int, local_token: int, size: int):
+        _debounce: typing.Optional[AsyncDebounce] = None  # avoid garbage collector
+
         if all(t.is_closing() for t in self._get_stream_transports(local_token)):
             blocks = (size // self._config.block_size) + 1
 
@@ -120,10 +122,8 @@ class Http:
                 remain_blocks = blocks - len(self._downloaded_blocks[local_token])
                 del self._downloaded_blocks[local_token]
 
-            _debounce = None
-
             if local_token in self._stream_debounce:
-                _debounce = self._stream_debounce[local_token]  # avoid garbage collector
+                _debounce = self._stream_debounce[local_token]
                 del self._stream_debounce[local_token]
 
             if local_token in self._stream_trasports:
@@ -139,6 +139,8 @@ class Http:
 
         if local_token in self._stream_debounce:
             self._stream_debounce[local_token].reschedule()
+
+        del _debounce
 
     async def _stream_handler(self, request: Request) -> typing.Optional[Response]:
         _message_id: str = request.match_info["message_id"]

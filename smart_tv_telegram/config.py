@@ -8,7 +8,7 @@ __all__ = [
 ]
 
 
-class  Config:
+class Config:
     _api_id: int
     _api_hash: str
     _token: str
