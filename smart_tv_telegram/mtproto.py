@@ -12,7 +12,7 @@ from pyrogram.raw.functions.auth import ExportAuthorization, ImportAuthorization
 from pyrogram.raw.functions.help import GetConfig
 from pyrogram.raw.functions.messages import GetMessages
 from pyrogram.raw.functions.upload import GetFile
-from pyrogram.raw.types import InputMessageID, Message, InputDocumentFileLocation, BadServerSalt
+from pyrogram.raw.types import InputMessageID, Message, InputDocumentFileLocation
 from pyrogram.errors import FloodWait
 import pyrogram.session
 from pyrogram.raw.types.upload import File
