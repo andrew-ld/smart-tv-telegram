@@ -2,6 +2,7 @@ import asyncio
 import functools
 import os
 import pickle
+import typing
 
 import pyrogram
 
@@ -11,9 +12,10 @@ from pyrogram.raw.functions.auth import ExportAuthorization, ImportAuthorization
 from pyrogram.raw.functions.help import GetConfig
 from pyrogram.raw.functions.messages import GetMessages
 from pyrogram.raw.functions.upload import GetFile
-from pyrogram.raw.types import InputMessageID, Message, InputDocumentFileLocation
+from pyrogram.raw.types import InputMessageID, Message, InputDocumentFileLocation, BadServerSalt
 from pyrogram.errors import FloodWait
 import pyrogram.session
+from pyrogram.raw.types.upload import File
 
 from . import Config
 
@@ -81,13 +83,13 @@ class Mtproto:
             )
         )
 
-        while True:
+        result: typing.Optional[File] = None
+
+        while not isinstance(result, File):
             try:
                 result = await session.send(request, sleep_threshold=0)
             except FloodWait:  # file floodwait is fake
                 await asyncio.sleep(self._config.file_fake_fw_wait)
-            else:
-                break
 
         return result.bytes
 
