@@ -1,12 +1,19 @@
 import abc
 import typing
 
+from aiohttp.web_request import Request
+from aiohttp.web_response import Response
+
 from .. import Config
+
+
+ROUTERS_RET_TYPE = typing.List[typing.Tuple[str, typing.Callable[[Request], typing.Awaitable[Response]]]]
 
 
 __all__ = [
     "Device",
-    "DeviceFinder"
+    "DeviceFinder",
+    "ROUTERS_RET_TYPE"
 ]
 
 
@@ -36,4 +43,13 @@ class DeviceFinder(abc.ABC):
     @staticmethod
     @abc.abstractmethod
     async def find(config: Config) -> typing.List[Device]:
+        raise NotImplementedError
+
+    @staticmethod
+    @abc.abstractmethod
+    def is_enabled(config: Config) -> bool:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def get_routers(self, config: Config) -> ROUTERS_RET_TYPE:
         raise NotImplementedError

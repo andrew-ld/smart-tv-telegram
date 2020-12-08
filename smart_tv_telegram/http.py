@@ -8,6 +8,7 @@ from aiohttp.web_response import Response, StreamResponse
 from pyrogram.raw.types import MessageMediaDocument, Document
 
 from . import Config, Mtproto
+from .devices import DeviceFinder
 from .tools import parse_http_range, mtproto_filename, serialize_token, AsyncDebounce
 
 
@@ -19,15 +20,17 @@ __all__ = [
 class Http:
     _mtproto: Mtproto
     _config: Config
+    _finders: typing.List[DeviceFinder]
 
     _tokens: typing.Set[int]
     _downloaded_blocks: typing.Dict[int, typing.Set[int]]
     _stream_debounce: typing.Dict[int, AsyncDebounce]
     _stream_trasports: typing.Dict[int, typing.Set[asyncio.Transport]]
 
-    def __init__(self, mtproto: Mtproto, config: Config):
+    def __init__(self, mtproto: Mtproto, config: Config, finders: typing.List[DeviceFinder]):
         self._mtproto = mtproto
         self._config = config
+        self._finders = finders
 
         self._tokens = set()
         self._downloaded_blocks = dict()
@@ -40,6 +43,12 @@ class Http:
         app.add_routes([web.options("/stream/{message_id}/{token}", self._upnp_discovery_handler)])
         app.add_routes([web.put("/stream/{message_id}/{token}", self._upnp_discovery_handler)])
         app.add_routes([web.get("/healthcheck", self._health_check_handler)])
+
+        for finder in self._finders:
+            routers = await finder.get_routers(self._config)
+
+            for path, handler in routers:
+                app.add_routes([web.get(path, handler)])
 
         # noinspection PyProtectedMember
         await web._run_app(app, host=self._config.listen_host, port=self._config.listen_port)

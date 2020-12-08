@@ -1,9 +1,9 @@
 import abc
+import enum
 import functools
+import html
 import traceback
 import typing
-import enum
-import html
 
 import async_timeout
 from pyrogram import Client, filters
@@ -12,7 +12,7 @@ from pyrogram.handlers import MessageHandler
 from pyrogram.types import ReplyKeyboardRemove, Message, KeyboardButton, ReplyKeyboardMarkup
 
 from . import Config, Mtproto, Http
-from .devices import UpnpDeviceFinder, ChromecastDeviceFinder, VlcDeviceFinder, XbmcDeviceFinder, Device
+from .devices import Device, DeviceFinder
 from .tools import build_uri, pyrogram_filename, secret_token
 
 
@@ -77,11 +77,13 @@ class Bot:
     _state_machine: TelegramStateMachine
     _mtproto: Mtproto
     _http: Http
+    _finders: typing.List[DeviceFinder]
 
-    def __init__(self, mtproto: Mtproto, config: Config, http: Http):
+    def __init__(self, mtproto: Mtproto, config: Config, http: Http, finders: typing.List[DeviceFinder]):
         self._config = config
         self._mtproto = mtproto
         self._http = http
+        self._finders = finders
         self._state_machine = TelegramStateMachine()
 
     def prepare(self):
@@ -144,18 +146,8 @@ class Bot:
     async def _new_document(self, _: Client, message: Message):
         devices = []
 
-        if self._config.upnp_enabled:
-            devices.extend(await UpnpDeviceFinder.find(self._config))
-
-        if self._config.chromecast_enabled:
-            # noinspection PyUnresolvedReferences
-            devices.extend(await ChromecastDeviceFinder.find(self._config))
-
-        if self._config.xbmc_enabled:
-            devices.extend(await XbmcDeviceFinder.find(self._config))
-
-        if self._config.vlc_enabled:
-            devices.extend(await VlcDeviceFinder.find(self._config))
+        for finder in self._finders:
+            devices.extend(await finder.find(self._config))
 
         if devices:
             try:

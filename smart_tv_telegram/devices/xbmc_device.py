@@ -7,10 +7,11 @@ import uuid
 import typing
 
 import aiohttp
+from aiohttp.web_request import Request
+from aiohttp.web_response import Response
 
 from .. import Config
-from . import Device, DeviceFinder
-
+from . import Device, DeviceFinder, ROUTERS_RET_TYPE
 
 __all__ = [
     "XbmcDevice",
@@ -145,3 +146,10 @@ class XbmcDeviceFinder(DeviceFinder):
             XbmcDevice(XbmcDeviceParams(params))
             for params in config.xbmc_devices
         ]
+
+    @staticmethod
+    def is_enabled(config: Config) -> bool:
+        return config.xbmc_enabled
+
+    async def get_routers(self, config: Config) -> ROUTERS_RET_TYPE:
+        return []

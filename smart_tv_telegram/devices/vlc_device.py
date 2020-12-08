@@ -3,7 +3,10 @@ import io
 import logging
 import typing
 
-from . import DeviceFinder, Device
+from aiohttp.web_request import Request
+from aiohttp.web_response import Response
+
+from . import DeviceFinder, Device, ROUTERS_RET_TYPE
 from .. import Config
 
 
@@ -97,3 +100,10 @@ class VlcDeviceFinder(DeviceFinder):
             VlcDevice(VlcDeviceParams(params))
             for params in config.vlc_devices
         ]
+
+    @staticmethod
+    def is_enabled(config: Config) -> bool:
+        return config.vlc_enabled
+
+    async def get_routers(self, config: Config) -> ROUTERS_RET_TYPE:
+        return []

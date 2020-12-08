@@ -6,6 +6,7 @@ import os.path
 import unittest
 
 from smart_tv_telegram import Http, Mtproto, Config, Bot
+from smart_tv_telegram.devices import FINDERS
 from smart_tv_telegram.tests import test_tools, test_http
 
 
@@ -27,10 +28,10 @@ def open_config(parser: argparse.ArgumentParser, arg: str) -> Config:
 
 
 async def async_main(config: Config):
+    finders = [f() for f in FINDERS if f.is_enabled(config)]
     mtproto = Mtproto(config)
-    http = Http(mtproto, config)
-
-    bot = Bot(mtproto, config, http)
+    http = Http(mtproto, config, finders)
+    bot = Bot(mtproto, config, http, finders)
     bot.prepare()
 
     await mtproto.start()
