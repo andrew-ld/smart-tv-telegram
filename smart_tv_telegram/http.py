@@ -1,4 +1,5 @@
 import asyncio
+import os.path
 import typing
 from urllib.parse import quote
 
@@ -39,6 +40,7 @@ class Http:
 
     async def start(self):
         app = web.Application()
+        app.add_routes([web.static("/static/", os.path.dirname(__file__) + "/static/")])
         app.add_routes([web.get("/stream/{message_id}/{token}", self._stream_handler)])
         app.add_routes([web.options("/stream/{message_id}/{token}", self._upnp_discovery_handler)])
         app.add_routes([web.put("/stream/{message_id}/{token}", self._upnp_discovery_handler)])

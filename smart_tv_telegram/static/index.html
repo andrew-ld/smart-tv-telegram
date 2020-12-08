@@ -1,0 +1,64 @@
+<html lang="en">
+<head>
+    <title>smart-telegram-bot web</title>
+    <script>
+        const source = document.createElement("source");
+
+        function onPasswordSubmit() {
+            const xhttp = new XMLHttpRequest();
+            const inputPassword = document.getElementById("password");
+            const buttonPassword = document.getElementById("password_submit")
+
+            xhttp.onloadend = function() {
+                if (this.status === 200) {
+                    inputPassword.hidden = true;
+                    buttonPassword.hidden = true;
+                    pollVideo(xhttp.responseText);
+                } else {
+                    window.alert("wrong password");
+                }
+            };
+
+            xhttp.open("GET", "/web/api/register/" + inputPassword.value, true);
+            xhttp.send();
+        }
+
+        function pollVideo(token) {
+            const player = document.getElementById("player")
+            const xhttp = new XMLHttpRequest();
+
+            xhttp.onloadend = function() {
+                if (this.status === 200) {
+                    if (player.hidden) {
+                        player.appendChild(source);
+                        player.hidden = false;
+                    }
+
+                    player.pause();
+                    source.setAttribute("src", xhttp.responseText);
+                    player.load();
+                    player.play();
+                }
+
+                if (this.status === 404) {
+                    location.reload();
+                }
+
+                setTimeout(function () { pollVideo(token); }, 1000);
+            };
+
+            xhttp.open("GET", "/web/api/poll/" + token, true);
+            xhttp.send();
+        }
+    </script>
+</head>
+<body>
+<label for="password">
+    <input id="password" type="password" placeholder="password">
+    <button onclick="onPasswordSubmit()" id="password_submit">submit password</button>
+</label>
+<label for="player">
+    <video id="player" controls hidden></video>
+</label>
+</body>
+</html>

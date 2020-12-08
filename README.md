@@ -11,6 +11,7 @@ A Telegram Bot to stream content on your smart TV (also Chromecast, FireTV and o
 - You can streaming on any device that supports UPnP (AVTransport)
 - Chromecast, Vlc (telnet api) and Kodi (xbmc http api) support
 - Streaming over HTTP
+- Web interface that plays videos in your browser
 
 Note: Chromecast (1st, 2nd and 3rd Gen.) [only supports H.264 and VP8 video codecs](https://developers.google.com/cast/docs/media#video_codecs)
 
@@ -52,6 +53,15 @@ docker run --network host -v "$(pwd)/config.ini:/app/config.ini:ro" -d smart-tv-
 
 ## Troubleshooting
 
+**Q:** How do I use the web interface?
+
+**A:** Set `enabled` to `1` in `web_ui` config block, and change the `password`
+
+- open http://`listen_ip`:`listen_port`/static/index.html
+
+- now if you send a video in the bot on telegram you can choose to play it in the browser
+
+##
 **Q:** My Firewall block upnp and broadcasting, how can use kodi without it
 
 **A:** Set `xbmc_enabled` to `1` and add your kodi device to `xbmc_devices` list
