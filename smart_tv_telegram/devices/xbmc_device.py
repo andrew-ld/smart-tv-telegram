@@ -3,15 +3,13 @@
 import asyncio
 import json
 import logging
-import uuid
 import typing
+import uuid
 
 import aiohttp
-from aiohttp.web_request import Request
-from aiohttp.web_response import Response
 
-from .. import Config
 from . import Device, DeviceFinder, ROUTERS_RET_TYPE
+from .. import Config
 
 __all__ = [
     "XbmcDevice",

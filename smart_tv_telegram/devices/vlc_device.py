@@ -3,12 +3,8 @@ import io
 import logging
 import typing
 
-from aiohttp.web_request import Request
-from aiohttp.web_response import Response
-
 from . import DeviceFinder, Device, ROUTERS_RET_TYPE
 from .. import Config
-
 
 __all__ = [
     "VlcDevice",

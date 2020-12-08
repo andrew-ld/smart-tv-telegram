@@ -1,13 +1,10 @@
 import typing
 
 import pychromecast
-from aiohttp.web_request import Request
-from aiohttp.web_response import Response
 
 from . import Device, DeviceFinder, ROUTERS_RET_TYPE
 from .. import Config
 from ..tools import run_method_in_executor
-
 
 __all__ = [
     "ChromecastDevice",

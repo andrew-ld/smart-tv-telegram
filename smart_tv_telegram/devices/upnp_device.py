@@ -3,8 +3,6 @@ from ipaddress import IPv4Address
 from xml.sax.saxutils import escape
 
 import async_upnp_client
-from aiohttp.web_request import Request
-from aiohttp.web_response import Response
 from async_upnp_client import UpnpFactory, UpnpError
 from async_upnp_client.aiohttp import AiohttpRequester
 from async_upnp_client.search import async_search
@@ -12,7 +10,6 @@ from async_upnp_client.search import async_search
 from . import Device, DeviceFinder, ROUTERS_RET_TYPE
 from .. import Config
 from ..tools import ascii_only
-
 
 __all__ = [
     "UpnpDevice",
@@ -22,13 +19,21 @@ __all__ = [
 
 _AVTRANSPORT_SCHEMA = "urn:schemas-upnp-org:service:AVTransport:1"
 
-_DLL_METADATA = """<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" 
-xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:r="urn:schemas-rinconnetworks-com:metadata-1-0/" 
-xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"> <item id="R:0/0/0" parentID="R:0/0" restricted="true"> 
-<dc:title>{title}</dc:title> <upnp:class>object.item.videoItem.movie</upnp:class> <desc id="cdudn" 
-nameSpace="urn:schemas-rinconnetworks-com:metadata-1-0/"> SA_RINCON65031_ </desc> <res 
-protocolInfo="http-get:*:video/mp4:DLNA.ORG_OP=01;DLNA.ORG_CI=0;DLNA.ORG_FLAGS=01700000000000000000000000000000">{
-url}</res> </item> </DIDL-Lite> """
+_DLL_METADATA = """
+<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/"
+    xmlns:r="urn:schemas-rinconnetworks-com:metadata-1-0/"
+    xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
+    <item id="R:0/0/0" parentID="R:0/0" restricted="true">
+        <dc:title>{title}</dc:title>
+        <upnp:class>object.item.videoItem.movie</upnp:class>
+        <desc id="cdudn" nameSpace="urn:schemas-rinconnetworks-com:metadata-1-0/">
+            SA_RINCON65031_
+        </desc>
+        <res protocolInfo="http-get:*:video/mp4:DLNA.ORG_OP=01;DLNA.ORG_CI=0;DLNA.ORG_FLAGS=01700000000000000000000000000000">{url}</res>
+    </item>
+</DIDL-Lite>
+"""
 
 
 class UpnpDevice(Device):
