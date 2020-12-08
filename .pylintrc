@@ -12,6 +12,7 @@ max-locals=30
 max-statements=100
 max-branches=100
 max-returns=15
+max-public-methods=25
 
 [MESSAGES CONTROL]
 disable=missing-function-docstring,missing-module-docstring,invalid-overridden-method,cyclic-import,missing-class-docstring,super-init-not-called,broad-except,protected-access,duplicate-code
