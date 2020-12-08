@@ -7,13 +7,13 @@ from aiohttp.web_response import Response
 from .. import Config
 
 
-ROUTERS_RET_TYPE = typing.List[typing.Tuple[str, typing.Callable[[Request], typing.Awaitable[Response]]]]
+RoutersDefType = typing.List[typing.Tuple[str, typing.Callable[[Request], typing.Awaitable[Response]]]]
 
 
 __all__ = [
     "Device",
     "DeviceFinder",
-    "ROUTERS_RET_TYPE"
+    "RoutersDefType"
 ]
 
 
@@ -51,5 +51,5 @@ class DeviceFinder(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def get_routers(self, config: Config) -> ROUTERS_RET_TYPE:
+    async def get_routers(self, config: Config) -> RoutersDefType:
         raise NotImplementedError

@@ -1,6 +1,6 @@
 import typing
 
-from .device import Device, DeviceFinder, ROUTERS_RET_TYPE
+from .device import Device, DeviceFinder, RoutersDefType
 from .upnp_device import UpnpDevice, UpnpDeviceFinder
 from .chromecast_device import ChromecastDevice, ChromecastDeviceFinder
 from .vlc_device import VlcDeviceFinder, VlcDevice
@@ -27,5 +27,5 @@ __all__ = [
     "VlcDevice",
     "VlcDeviceFinder",
     "FINDERS",
-    "ROUTERS_RET_TYPE"
+    "RoutersDefType"
 ]

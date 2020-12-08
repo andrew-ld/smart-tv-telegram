@@ -3,7 +3,7 @@ import io
 import logging
 import typing
 
-from . import DeviceFinder, Device, ROUTERS_RET_TYPE
+from . import DeviceFinder, Device, RoutersDefType
 from .. import Config
 
 __all__ = [
@@ -101,5 +101,5 @@ class VlcDeviceFinder(DeviceFinder):
     def is_enabled(config: Config) -> bool:
         return config.vlc_enabled
 
-    async def get_routers(self, config: Config) -> ROUTERS_RET_TYPE:
+    async def get_routers(self, config: Config) -> RoutersDefType:
         return []

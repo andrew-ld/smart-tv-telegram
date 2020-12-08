@@ -7,7 +7,7 @@ from async_upnp_client import UpnpFactory, UpnpError
 from async_upnp_client.aiohttp import AiohttpRequester
 from async_upnp_client.search import async_search
 
-from . import Device, DeviceFinder, ROUTERS_RET_TYPE
+from . import Device, DeviceFinder, RoutersDefType
 from .. import Config
 from ..tools import ascii_only
 
@@ -88,5 +88,5 @@ class UpnpDeviceFinder(DeviceFinder):
     def is_enabled(config: Config) -> bool:
         return config.upnp_enabled
 
-    async def get_routers(self, config: Config) -> ROUTERS_RET_TYPE:
+    async def get_routers(self, config: Config) -> RoutersDefType:
         return []

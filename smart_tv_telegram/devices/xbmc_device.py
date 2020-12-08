@@ -8,7 +8,7 @@ import uuid
 
 import aiohttp
 
-from . import Device, DeviceFinder, ROUTERS_RET_TYPE
+from . import Device, DeviceFinder, RoutersDefType
 from .. import Config
 
 __all__ = [
@@ -149,5 +149,5 @@ class XbmcDeviceFinder(DeviceFinder):
     def is_enabled(config: Config) -> bool:
         return config.xbmc_enabled
 
-    async def get_routers(self, config: Config) -> ROUTERS_RET_TYPE:
+    async def get_routers(self, config: Config) -> RoutersDefType:
         return []
