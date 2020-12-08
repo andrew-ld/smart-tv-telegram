@@ -11,6 +11,7 @@ from . import Device, DeviceFinder, RoutersDefType
 from .. import Config
 from ..tools import ascii_only
 
+
 __all__ = [
     "UpnpDevice",
     "UpnpDeviceFinder"
@@ -40,7 +41,6 @@ class UpnpDevice(Device):
     _device: async_upnp_client.UpnpDevice
     _service: async_upnp_client.UpnpService
 
-    # noinspection PyMissingConstructor
     def __init__(self, device: async_upnp_client.UpnpDevice):
         self._device = device
         self._service = self._device.service(_AVTRANSPORT_SCHEMA)
@@ -67,8 +67,7 @@ class UpnpDevice(Device):
 
 
 class UpnpDeviceFinder(DeviceFinder):
-    @staticmethod
-    async def find(config: Config) -> typing.List[Device]:
+    async def find(self, config: Config) -> typing.List[Device]:
         devices = []
         requester = AiohttpRequester()
         factory = UpnpFactory(requester)

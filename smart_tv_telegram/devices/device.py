@@ -7,22 +7,28 @@ from aiohttp.web_response import Response
 from .. import Config
 
 
-RoutersDefType = typing.List[typing.Tuple[str, typing.Callable[[Request], typing.Awaitable[Response]]]]
+class RequestHandler(abc.ABC):
+    @abc.abstractmethod
+    def get_path(self) -> str:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def handle(self, request: Request) -> Response:
+        raise NotImplementedError
+
+
+RoutersDefType = typing.List[RequestHandler]
 
 
 __all__ = [
     "Device",
     "DeviceFinder",
-    "RoutersDefType"
+    "RoutersDefType",
+    "RequestHandler",
 ]
 
 
 class Device(abc.ABC):
-    # noinspection PyUnusedLocal
-    @abc.abstractmethod
-    def __init__(self, device: typing.Any):
-        raise NotImplementedError
-
     @abc.abstractmethod
     async def stop(self):
         raise NotImplementedError
@@ -40,9 +46,8 @@ class Device(abc.ABC):
 
 
 class DeviceFinder(abc.ABC):
-    @staticmethod
     @abc.abstractmethod
-    async def find(config: Config) -> typing.List[Device]:
+    async def find(self, config: Config) -> typing.List[Device]:
         raise NotImplementedError
 
     @staticmethod

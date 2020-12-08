@@ -47,8 +47,8 @@ class Http:
         for finder in self._finders:
             routers = await finder.get_routers(self._config)
 
-            for path, handler in routers:
-                app.add_routes([web.get(path, handler)])
+            for handler in routers:
+                app.add_routes([web.get(handler.get_path(), handler.handle)])
 
         # noinspection PyProtectedMember
         await web._run_app(app, host=self._config.listen_host, port=self._config.listen_port)

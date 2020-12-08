@@ -6,6 +6,7 @@ import typing
 from . import DeviceFinder, Device, RoutersDefType
 from .. import Config
 
+
 __all__ = [
     "VlcDevice",
     "VlcDeviceFinder"
@@ -47,7 +48,6 @@ class VlcDeviceParams:
 class VlcDevice(Device):
     params: VlcDeviceParams
 
-    # noinspection PyMissingConstructor
     def __init__(self, device: VlcDeviceParams):
         self._params = device
 
@@ -90,8 +90,7 @@ class VlcDevice(Device):
 
 
 class VlcDeviceFinder(DeviceFinder):
-    @staticmethod
-    async def find(config: Config) -> typing.List[Device]:
+    async def find(self, config: Config) -> typing.List[Device]:
         return [
             VlcDevice(VlcDeviceParams(params))
             for params in config.vlc_devices

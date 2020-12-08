@@ -11,6 +11,7 @@ import aiohttp
 from . import Device, DeviceFinder, RoutersDefType
 from .. import Config
 
+
 __all__ = [
     "XbmcDevice",
     "XbmcDeviceFinder"
@@ -65,7 +66,6 @@ class XbmcDevice(Device):
     _http_url: str
     _host: str
 
-    # noinspection PyMissingConstructor
     def __init__(self, device: XbmcDeviceParams):
         if device.username:
             self._auth = aiohttp.BasicAuth(device.username, device.password)
@@ -138,8 +138,7 @@ class XbmcDevice(Device):
 
 
 class XbmcDeviceFinder(DeviceFinder):
-    @staticmethod
-    async def find(config: Config) -> typing.List[Device]:
+    async def find(self, config: Config) -> typing.List[Device]:
         return [
             XbmcDevice(XbmcDeviceParams(params))
             for params in config.xbmc_devices

@@ -14,6 +14,10 @@ request_gone_timeout=60
 listen_host=192.168.1.2
 listen_port=8350
 
+[web_ui]
+enabled=0
+password=owo
+
 [discovery]
 upnp_enabled=1
 upnp_scan_timeout=3

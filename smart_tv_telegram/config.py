@@ -26,6 +26,9 @@ class Config:
     _chromecast_enabled: bool
     _chromecast_scan_timeout: int = 0
 
+    _web_ui_enabled: bool
+    _web_ui_password: str = ""
+
     _xbmc_enabled: bool
     _xbmc_devices: typing.List[dict]
 
@@ -56,6 +59,11 @@ class Config:
 
         if self._upnp_enabled:
             self._upnp_scan_timeout = int(config["discovery"]["upnp_scan_timeout"])
+
+        self._web_ui_enabled = bool(int(config["web_ui"]["enabled"]))
+
+        if self._web_ui_enabled:
+            self._web_ui_password = config["web_ui"]["password"]
 
         self._chromecast_enabled = bool(int(config["discovery"]["chromecast_enabled"]))
 
@@ -100,6 +108,14 @@ class Config:
 
         if not all(isinstance(x, int) for x in self._admins):
             raise ValueError("admins list should contain only integers")
+
+    @property
+    def web_ui_enabled(self) -> bool:
+        return self._web_ui_enabled
+
+    @property
+    def web_ui_password(self) -> str:
+        return self._web_ui_password
 
     @property
     def request_gone_timeout(self) -> int:

@@ -6,6 +6,7 @@ from . import Device, DeviceFinder, RoutersDefType
 from .. import Config
 from ..tools import run_method_in_executor
 
+
 __all__ = [
     "ChromecastDevice",
     "ChromecastDeviceFinder"
@@ -15,7 +16,6 @@ __all__ = [
 class ChromecastDevice(Device):
     _device: pychromecast.Chromecast
 
-    # noinspection PyMissingConstructor
     def __init__(self, device: typing.Any):
         self._device = device
         self._device.wait()
@@ -33,9 +33,8 @@ class ChromecastDevice(Device):
 
 
 class ChromecastDeviceFinder(DeviceFinder):
-    @staticmethod
     @run_method_in_executor
-    def find(config: Config) -> typing.List[Device]:
+    def find(self, config: Config) -> typing.List[Device]:
         return [
             ChromecastDevice(device)
             for device in pychromecast.get_chromecasts(
