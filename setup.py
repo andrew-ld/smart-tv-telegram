@@ -12,6 +12,7 @@ with open("requirements.txt") as fh:
 setuptools.setup(
     name="smart_tv_telegram",
     version="1.2.0.dev0",
+    setup_requires=["wheel"],
     author="andrew-ld",
     author_email="andrew-ld@protonmail.com",
     description="A Telegram Bot to stream content on your smart TV",
