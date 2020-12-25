@@ -4,8 +4,8 @@ from .http import Http
 from .bot import Bot
 
 
-__version__ = "1.1.1"
-__version_info__ = ("1", "1", "1")
+__version__ = "1.2.0"
+__version_info__ = ("1", "2", "0")
 __author__ = "https://github.com/andrew-ld"
 
 
