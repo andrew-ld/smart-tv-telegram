@@ -147,7 +147,8 @@ class Bot:
         devices = []
 
         for finder in self._finders:
-            devices.extend(await finder.find(self._config))
+            with async_timeout.timeout(self._config.device_request_timeout):
+                devices.extend(await finder.find(self._config))
 
         if devices:
             try:
