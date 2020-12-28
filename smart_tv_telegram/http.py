@@ -7,6 +7,7 @@ from aiohttp import web
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response, StreamResponse
 from pyrogram.raw.types import MessageMediaDocument, Document
+from pyrogram.utils import get_peer_id
 
 from . import Config, Mtproto
 from .devices import DeviceFinder
@@ -227,7 +228,7 @@ class Http:
         await stream.prepare(request)
 
         while offset < max_size:
-            self._feed_timeout(message_id, message.from_id, local_token, size)
+            self._feed_timeout(message_id, get_peer_id(message.peer_id), local_token, size)
             block = await self._mtproto.get_block(message, offset, self._config.block_size)
             new_offset = offset + len(block)
 
