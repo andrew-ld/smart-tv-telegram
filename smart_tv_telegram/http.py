@@ -227,7 +227,7 @@ class Http:
         await stream.prepare(request)
 
         while offset < max_size:
-            self._feed_timeout(message_id, message.from_id, local_token, size)
+            self._feed_timeout(message_id, message.from_id.user_id, local_token, size)
             block = await self._mtproto.get_block(message, offset, self._config.block_size)
             new_offset = offset + len(block)
 
