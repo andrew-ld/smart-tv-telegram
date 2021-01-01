@@ -8,13 +8,13 @@ import typing
 import async_timeout
 from pyrogram import Client, filters
 from pyrogram.filters import create
-from pyrogram.handlers import MessageHandler
-from pyrogram.types import ReplyKeyboardRemove, Message, KeyboardButton, ReplyKeyboardMarkup
+from pyrogram.handlers import MessageHandler, CallbackQueryHandler
+from pyrogram.types import ReplyKeyboardRemove, Message, KeyboardButton, ReplyKeyboardMarkup, CallbackQuery, \
+    InlineKeyboardMarkup, InlineKeyboardButton
 
-from . import Config, Mtproto, Http
-from .devices import Device, DeviceFinder
+from . import Config, Mtproto, Http, OnStreamClosed
+from .devices import Device, DeviceFinder, DevicePlayerFunction
 from .tools import build_uri, pyrogram_filename, secret_token
-
 
 __all__ = [
     "Bot"
@@ -50,6 +50,21 @@ class SelectStateData(StateData):
         self.devices = devices
 
 
+class OnStreamClosedHandler(OnStreamClosed):
+    _mtproto: Mtproto
+    _functions: typing.Dict[int, typing.Any]
+
+    def __init__(self, mtproto: Mtproto, functions: typing.Dict[int, typing.Any]):
+        self._mtproto = mtproto
+        self._functions = functions
+
+    async def handle(self, ramains: float, chat_id: int, message_id: int, local_token: int):
+        if local_token in self._functions:
+            del self._functions[local_token]
+
+        await self._mtproto.reply_message(message_id, chat_id, f"download closed, {ramains:0.2f}% remains")
+
+
 class TelegramStateMachine:
     _states: typing.Dict[int, typing.Tuple[States, typing.Union[bool, StateData]]]
 
@@ -78,6 +93,7 @@ class Bot:
     _mtproto: Mtproto
     _http: Http
     _finders: typing.List[DeviceFinder]
+    _functions: typing.Dict[int, typing.Dict[int, DevicePlayerFunction]]
 
     def __init__(self, mtproto: Mtproto, config: Config, http: Http, finders: typing.List[DeviceFinder]):
         self._config = config
@@ -85,6 +101,10 @@ class Bot:
         self._http = http
         self._finders = finders
         self._state_machine = TelegramStateMachine()
+        self._functions = dict()
+
+    def get_on_stream_closed(self) -> OnStreamClosed:
+        return OnStreamClosedHandler(self._mtproto, self._functions)
 
     def prepare(self):
         admin_filter = filters.chat(self._config.admins) & filters.private
@@ -95,8 +115,42 @@ class Bot:
         self._mtproto.register(MessageHandler(self._new_document, filters.voice & admin_filter))
         self._mtproto.register(MessageHandler(self._new_document, filters.video_note & admin_filter))
 
+        admin_filter_inline = create(lambda _, __, m: m.from_user.id in self._config.admins)
+        self._mtproto.register(CallbackQueryHandler(self._device_player_function, admin_filter_inline))
+
         state_filter = create(lambda _, __, m: self._state_machine.get_state(m)[0] == States.SELECT)
         self._mtproto.register(MessageHandler(self._select_device, filters.text & admin_filter & state_filter))
+
+    async def _device_player_function(self, _: Client, message: CallbackQuery):
+        data = message.data
+
+        try:
+            data = int(data)
+        except ValueError:
+            await message.answer("wrong callback")
+
+        try:
+            f = next(
+                f_v
+                for f in self._functions.values()
+                for f_k, f_v in f.items()
+                if f_k == data
+            )
+        except StopIteration:
+            await message.answer("stream closed")
+            return
+
+        if not await f.is_enabled(self._config):
+            await message.answer("function not enabled")
+            return
+
+        with async_timeout.timeout(self._config.device_request_timeout) as cm:
+            await f.handle(self._mtproto)
+
+        if cm.expired:
+            await message.answer("request timeout")
+        else:
+            await message.answer("done")
 
     async def _select_device(self, _: Client, message: Message):
         data: SelectStateData
@@ -121,7 +175,7 @@ class Bot:
 
         async with async_timeout.timeout(self._config.device_request_timeout) as timeout_context:
             token = secret_token()
-            self._http.add_remote_token(data.msg_id, token)
+            local_token = self._http.add_remote_token(data.msg_id, token)
             uri = build_uri(self._config, data.msg_id, token)
 
             # noinspection PyBroadException
@@ -138,7 +192,30 @@ class Bot:
                 )
 
             else:
-                await reply(f"Playing ID: {data.msg_id}")
+                physical_functions = device.get_player_functions()
+                functions = self._functions[local_token] = dict()
+
+                if physical_functions:
+                    buttons = []
+
+                    for function in physical_functions:
+                        function_id = secret_token()
+                        function_name = await function.get_name()
+                        button = InlineKeyboardButton(function_name, str(function_id))
+                        functions[function_id] = function
+                        buttons.append([button])
+
+                    await message.reply(
+                        f"Device <code>{html.escape(device.get_device_name())}</code>\n"
+                        f"controller for file <code>{data.msg_id}</code>",
+                        reply_markup=InlineKeyboardMarkup(buttons)
+                    )
+
+                    stub_message = await reply("stub")
+                    await stub_message.delete()
+
+                else:
+                    await reply(f"Playing file <code>{data.msg_id}</code>")
 
         if timeout_context.expired:
             await reply("Timeout while communicate with the device")

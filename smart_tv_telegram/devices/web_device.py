@@ -5,7 +5,7 @@ from aiohttp.web_request import Request
 from aiohttp.web_response import Response
 
 from smart_tv_telegram import Config
-from smart_tv_telegram.devices import DeviceFinder, RoutersDefType, Device, RequestHandler
+from smart_tv_telegram.devices import DeviceFinder, RoutersDefType, Device, RequestHandler, DevicePlayerFunction
 from smart_tv_telegram.tools import secret_token, AsyncDebounce
 
 
@@ -40,6 +40,9 @@ class WebDevice(Device):
         tmp = self._url_to_play
         self._url_to_play = None
         return tmp
+
+    def get_player_functions(self) -> typing.List[DevicePlayerFunction]:
+        return []
 
 
 class WebDeviceApiRequestRegisterDevice(RequestHandler):
@@ -108,6 +111,9 @@ class WebDeviceApiRequestPoll(RequestHandler):
             return Response(status=302)
 
         return Response(status=200, body=url_to_play)
+
+    def get_player_functions(self) -> typing.List[DevicePlayerFunction]:
+        return []
 
 
 class WebDeviceFinder(DeviceFinder):

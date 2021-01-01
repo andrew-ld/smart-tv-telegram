@@ -2,7 +2,7 @@ import typing
 
 import pychromecast
 
-from . import Device, DeviceFinder, RoutersDefType
+from . import Device, DeviceFinder, RoutersDefType, DevicePlayerFunction
 from .. import Config
 from ..tools import run_method_in_executor
 
@@ -30,6 +30,9 @@ class ChromecastDevice(Device):
     def play(self, url: str, title: str):
         self._device.media_controller.play_media(url, "video/mp4", title=title)
         self._device.media_controller.block_until_active()
+
+    def get_player_functions(self) -> typing.List[DevicePlayerFunction]:
+        return []
 
 
 class ChromecastDeviceFinder(DeviceFinder):

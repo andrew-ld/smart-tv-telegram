@@ -8,7 +8,7 @@ import uuid
 
 import aiohttp
 
-from . import Device, DeviceFinder, RoutersDefType
+from . import Device, DeviceFinder, RoutersDefType, DevicePlayerFunction
 from .. import Config
 
 
@@ -135,6 +135,9 @@ class XbmcDevice(Device):
         await self._call("Playlist.Clear", playlistid=0)
         await self._call("Playlist.Add", playlistid=0, item={"file": url})
         await self._call("Player.Open", item={"playlistid": 0}, options={"repeat": "one"})
+
+    def get_player_functions(self) -> typing.List[DevicePlayerFunction]:
+        return []
 
 
 class XbmcDeviceFinder(DeviceFinder):

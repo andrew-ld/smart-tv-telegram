@@ -32,6 +32,7 @@ async def async_main(config: Config):
     mtproto = Mtproto(config)
     http = Http(mtproto, config, finders)
     bot = Bot(mtproto, config, http, finders)
+    http.set_on_stram_closed_handler(bot.get_on_stream_closed())
     bot.prepare()
 
     await mtproto.start()

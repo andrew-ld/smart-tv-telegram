@@ -3,7 +3,7 @@ import io
 import logging
 import typing
 
-from . import DeviceFinder, Device, RoutersDefType
+from . import DeviceFinder, Device, RoutersDefType, DevicePlayerFunction
 from .. import Config
 
 
@@ -87,6 +87,9 @@ class VlcDevice(Device):
     async def play(self, url: str, title: str):
         await self._call("add", url)
         await self._call("play")
+
+    def get_player_functions(self) -> typing.List[DevicePlayerFunction]:
+        return []
 
 
 class VlcDeviceFinder(DeviceFinder):

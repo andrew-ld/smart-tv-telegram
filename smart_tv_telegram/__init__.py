@@ -1,6 +1,6 @@
 from .config import Config
 from .mtproto import Mtproto
-from .http import Http
+from .http import Http, OnStreamClosed
 from .bot import Bot
 
 
@@ -13,6 +13,7 @@ __all__ = [
     "Config",
     "Mtproto",
     "Http",
+    "OnStreamClosed",
     "Bot",
     "__version__",
     "__version_info__",

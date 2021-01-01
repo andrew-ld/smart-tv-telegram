@@ -7,8 +7,8 @@ from async_upnp_client import UpnpFactory, UpnpError
 from async_upnp_client.aiohttp import AiohttpRequester
 from async_upnp_client.search import async_search
 
-from . import Device, DeviceFinder, RoutersDefType
-from .. import Config
+from . import Device, DeviceFinder, RoutersDefType, DevicePlayerFunction
+from .. import Config, Mtproto
 from ..tools import ascii_only
 
 
@@ -35,6 +35,40 @@ _DLL_METADATA = """
     </item>
 </DIDL-Lite>
 """
+
+
+class UpnpPlayFunction(DevicePlayerFunction):
+    _service: async_upnp_client.UpnpService
+
+    def __init__(self, service: async_upnp_client.UpnpService):
+        self._service = service
+
+    async def get_name(self) -> str:
+        return "PLAY"
+
+    async def handle(self, mtproto: Mtproto):
+        play = self._service.action("Play")
+        await play.async_call(InstanceID=0, Speed="1")
+
+    async def is_enabled(self, config: Config):
+        return config.upnp_enabled
+
+
+class UpnpPauseFunction(DevicePlayerFunction):
+    _service: async_upnp_client.UpnpService
+
+    def __init__(self, service: async_upnp_client.UpnpService):
+        self._service = service
+
+    async def get_name(self) -> str:
+        return "PAUSE"
+
+    async def handle(self, mtproto: Mtproto):
+        play = self._service.action("Pause")
+        await play.async_call(InstanceID=0)
+
+    async def is_enabled(self, config: Config):
+        return config.upnp_enabled
 
 
 class UpnpDevice(Device):
@@ -64,6 +98,12 @@ class UpnpDevice(Device):
 
         play = self._service.action("Play")
         await play.async_call(InstanceID=0, Speed="1")
+
+    def get_player_functions(self) -> typing.List[DevicePlayerFunction]:
+        return [
+            UpnpPlayFunction(self._service),
+            UpnpPauseFunction(self._service)
+        ]
 
 
 class UpnpDeviceFinder(DeviceFinder):

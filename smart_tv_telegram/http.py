@@ -1,3 +1,4 @@
+import abc
 import asyncio
 import os.path
 import typing
@@ -15,14 +16,22 @@ from .tools import parse_http_range, mtproto_filename, serialize_token, AsyncDeb
 
 
 __all__ = [
-    "Http"
+    "Http",
+    "OnStreamClosed"
 ]
+
+
+class OnStreamClosed(abc.ABC):
+    @abc.abstractmethod
+    async def handle(self, ramains: float, chat_id: int, message_id: int, local_token: int):
+        raise NotImplementedError
 
 
 class Http:
     _mtproto: Mtproto
     _config: Config
     _finders: typing.List[DeviceFinder]
+    _on_stream_closed: typing.Optional[OnStreamClosed] = None
 
     _tokens: typing.Set[int]
     _downloaded_blocks: typing.Dict[int, typing.Set[int]]
@@ -38,6 +47,9 @@ class Http:
         self._downloaded_blocks = dict()
         self._stream_debounce = dict()
         self._stream_trasports = dict()
+
+    def set_on_stram_closed_handler(self, handler: OnStreamClosed):
+        self._on_stream_closed = handler
 
     async def start(self):
         app = web.Application()
@@ -56,9 +68,10 @@ class Http:
         # noinspection PyProtectedMember
         await web._run_app(app, host=self._config.listen_host, port=self._config.listen_port)
 
-    def add_remote_token(self, message_id: int, partial_remote_token: int):
+    def add_remote_token(self, message_id: int, partial_remote_token: int) -> int:
         local_token = serialize_token(message_id, partial_remote_token)
         self._tokens.add(local_token)
+        return local_token
 
     def _check_local_token(self, local_token: int) -> bool:
         return local_token in self._tokens
@@ -142,12 +155,10 @@ class Http:
                 del self._stream_trasports[local_token]
 
             remain_blocks_percentual = remain_blocks / blocks * 100
+            on_stream_closed = self._on_stream_closed
 
-            await self._mtproto.reply_message(
-                message_id,
-                chat_id,
-                f"download closed, {remain_blocks_percentual:0.2f}% remains"
-            )
+            if isinstance(on_stream_closed, OnStreamClosed):
+                await on_stream_closed.handle(remain_blocks_percentual, chat_id, message_id, local_token)
 
         if local_token in self._stream_debounce:
             self._stream_debounce[local_token].reschedule()
