@@ -3,11 +3,9 @@ import configparser
 import logging
 import argparse
 import os.path
-import unittest
 
 from smart_tv_telegram import Http, Mtproto, Config, Bot
 from smart_tv_telegram.devices import FINDERS
-from smart_tv_telegram.tests import test_tools, test_http
 
 
 def open_config(parser: argparse.ArgumentParser, arg: str) -> Config:
@@ -42,19 +40,6 @@ async def async_main(config: Config):
 def main(config: Config):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(async_main(config))
-
-
-def unit_test():
-    loader = unittest.TestLoader()
-    suite = unittest.TestSuite()
-
-    # noinspection PyTypeChecker
-    suite.addTests(loader.loadTestsFromModule(test_tools))
-    # noinspection PyTypeChecker
-    suite.addTests(loader.loadTestsFromModule(test_http))
-
-    runner = unittest.TextTestRunner(verbosity=3)
-    runner.run(suite)
 
 
 def arg_parser():

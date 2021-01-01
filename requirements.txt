@@ -1,5 +1,4 @@
 aiohttp==3.7.3
-aiounittest==1.4.0
 async-generator==1.10
 async-lru==1.0.2
 async-timeout==3.0.1

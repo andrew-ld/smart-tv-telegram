@@ -30,7 +30,6 @@ setuptools.setup(
     entry_points={
         "console_scripts": [
             "smart_tv_telegram=smart_tv_telegram.__main__:arg_parser",
-            "smart_tv_telegram_tests=smart_tv_telegram.__main__:unit_test"
         ],
     },
     include_package_data=True
