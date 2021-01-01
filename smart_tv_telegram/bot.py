@@ -130,7 +130,7 @@ class Bot:
             await message.answer("wrong callback")
 
         try:
-            f = next(
+            device_function = next(
                 f_v
                 for f in self._functions.values()
                 for f_k, f_v in f.items()
@@ -140,14 +140,14 @@ class Bot:
             await message.answer("stream closed")
             return
 
-        if not await f.is_enabled(self._config):
+        if not await device_function.is_enabled(self._config):
             await message.answer("function not enabled")
             return
 
-        with async_timeout.timeout(self._config.device_request_timeout) as cm:
-            await f.handle(self._mtproto)
+        with async_timeout.timeout(self._config.device_request_timeout) as timeout_context:
+            await device_function.handle(self._mtproto)
 
-        if cm.expired:
+        if timeout_context.expired:
             await message.answer("request timeout")
         else:
             await message.answer("done")

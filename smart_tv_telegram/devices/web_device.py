@@ -112,9 +112,6 @@ class WebDeviceApiRequestPoll(RequestHandler):
 
         return Response(status=200, body=url_to_play)
 
-    def get_player_functions(self) -> typing.List[DevicePlayerFunction]:
-        return []
-
 
 class WebDeviceFinder(DeviceFinder):
     _devices: typing.Dict[WebDevice, AsyncDebounce]
