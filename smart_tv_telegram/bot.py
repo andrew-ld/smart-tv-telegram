@@ -58,11 +58,11 @@ class OnStreamClosedHandler(OnStreamClosed):
         self._mtproto = mtproto
         self._functions = functions
 
-    async def handle(self, ramains: float, chat_id: int, message_id: int, local_token: int):
+    async def handle(self, remains: float, chat_id: int, message_id: int, local_token: int):
         if local_token in self._functions:
             del self._functions[local_token]
 
-        await self._mtproto.reply_message(message_id, chat_id, f"download closed, {ramains:0.2f}% remains")
+        await self._mtproto.reply_message(message_id, chat_id, f"download closed, {remains:0.2f}% remains")
 
 
 class TelegramStateMachine:

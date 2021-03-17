@@ -23,7 +23,7 @@ __all__ = [
 
 class OnStreamClosed(abc.ABC):
     @abc.abstractmethod
-    async def handle(self, ramains: float, chat_id: int, message_id: int, local_token: int):
+    async def handle(self, remains: float, chat_id: int, message_id: int, local_token: int):
         raise NotImplementedError
 
 
@@ -36,7 +36,7 @@ class Http:
     _tokens: typing.Set[int]
     _downloaded_blocks: typing.Dict[int, typing.Set[int]]
     _stream_debounce: typing.Dict[int, AsyncDebounce]
-    _stream_trasports: typing.Dict[int, typing.Set[asyncio.Transport]]
+    _stream_transports: typing.Dict[int, typing.Set[asyncio.Transport]]
 
     def __init__(self, mtproto: Mtproto, config: Config, finders: typing.List[DeviceFinder]):
         self._mtproto = mtproto
@@ -46,9 +46,9 @@ class Http:
         self._tokens = set()
         self._downloaded_blocks = dict()
         self._stream_debounce = dict()
-        self._stream_trasports = dict()
+        self._stream_transports = dict()
 
-    def set_on_stram_closed_handler(self, handler: OnStreamClosed):
+    def set_on_stream_closed_handler(self, handler: OnStreamClosed):
         self._on_stream_closed = handler
 
     async def start(self):
@@ -125,12 +125,12 @@ class Http:
         downloaded_blocks = self._downloaded_blocks.setdefault(local_token, set())
         downloaded_blocks.add(block_id)
 
-    def _feed_stream_trasport(self, local_token: int, transport: asyncio.Transport):
-        transports = self._stream_trasports.setdefault(local_token, set())
+    def _feed_stream_transport(self, local_token: int, transport: asyncio.Transport):
+        transports = self._stream_transports.setdefault(local_token, set())
         transports.add(transport)
 
     def _get_stream_transports(self, local_token: int) -> typing.Set[asyncio.Transport]:
-        return self._stream_trasports[local_token] if local_token in self._stream_trasports else set()
+        return self._stream_transports[local_token] if local_token in self._stream_transports else set()
 
     async def _timeout_handler(self, message_id: int, chat_id: int, local_token: int, size: int):
         _debounce: typing.Optional[AsyncDebounce] = None  # avoid garbage collector
@@ -151,14 +151,14 @@ class Http:
                 _debounce = self._stream_debounce[local_token]
                 del self._stream_debounce[local_token]
 
-            if local_token in self._stream_trasports:
-                del self._stream_trasports[local_token]
+            if local_token in self._stream_transports:
+                del self._stream_transports[local_token]
 
-            remain_blocks_percentual = remain_blocks / blocks * 100
+            remain_blocks_perceptual = remain_blocks / blocks * 100
             on_stream_closed = self._on_stream_closed
 
             if isinstance(on_stream_closed, OnStreamClosed):
-                await on_stream_closed.handle(remain_blocks_percentual, chat_id, message_id, local_token)
+                await on_stream_closed.handle(remain_blocks_perceptual, chat_id, message_id, local_token)
 
         if local_token in self._stream_debounce:
             self._stream_debounce[local_token].reschedule()
@@ -253,7 +253,7 @@ class Http:
             if request.transport is None:
                 break
 
-            self._feed_stream_trasport(local_token, request.transport)
+            self._feed_stream_transport(local_token, request.transport)
 
             if request.transport.is_closing():
                 break

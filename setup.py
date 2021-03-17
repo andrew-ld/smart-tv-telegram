@@ -11,7 +11,7 @@ with open("requirements.txt") as fh:
 
 setuptools.setup(
     name="smart_tv_telegram",
-    version="1.2.1.dev0",
+    version="1.3.0.dev0",
     setup_requires=["wheel"],
     author="andrew-ld",
     author_email="andrew-ld@protonmail.com",
