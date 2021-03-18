@@ -1,3 +1,4 @@
+import asyncio
 import typing
 
 import pychromecast
@@ -34,15 +35,25 @@ class ChromecastDevice(Device):
     def get_player_functions(self) -> typing.List[DevicePlayerFunction]:
         return []
 
+    def __del__(self):
+        self._device.disconnect(blocking=False)
+
 
 class ChromecastDeviceFinder(DeviceFinder):
-    @run_method_in_executor
-    def find(self, config: Config) -> typing.List[Device]:
-        return [
-            ChromecastDevice(device)
-            for device in pychromecast.get_chromecasts(
-                timeout=config.chromecast_scan_timeout)[0]
-        ]
+    async def find(self, config: Config) -> typing.List[Device]:
+        devices: typing.List[pychromecast.Chromecast] = list()
+
+        def callback(device: pychromecast.Chromecast):
+            devices.append(device)
+
+        browser = pychromecast.get_chromecasts(
+            timeout=config.chromecast_scan_timeout,
+            blocking=False,
+            callback=callback)
+
+        await asyncio.sleep(config.chromecast_scan_timeout)
+        browser.cancel()
+        return [ChromecastDevice(device) for device in devices]
 
     @staticmethod
     def is_enabled(config: Config) -> bool:

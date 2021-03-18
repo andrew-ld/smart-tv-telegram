@@ -54,11 +54,15 @@ class Config:
         self._listen_host = str(config["http"]["listen_host"])
 
         self._request_gone_timeout = int(config["bot"]["request_gone_timeout"])
+        self._device_request_timeout = int(config["discovery"]["device_request_timeout"])
 
         self._upnp_enabled = bool(int(config["discovery"]["upnp_enabled"]))
 
         if self._upnp_enabled:
             self._upnp_scan_timeout = int(config["discovery"]["upnp_scan_timeout"])
+
+            if self.upnp_scan_timeout > self.device_request_timeout:
+                raise ValueError("upnp_scan_timeout should < device_request_timeout")
 
         self._web_ui_enabled = bool(int(config["web_ui"]["enabled"]))
 
@@ -67,7 +71,6 @@ class Config:
 
         self._chromecast_enabled = bool(int(config["discovery"]["chromecast_enabled"]))
 
-        self._device_request_timeout = int(config["discovery"]["device_request_timeout"])
 
         self._xbmc_enabled = bool(int(config["discovery"]["xbmc_enabled"]))
 
@@ -99,6 +102,9 @@ class Config:
 
         if self._chromecast_enabled:
             self._chromecast_scan_timeout = int(config["discovery"]["chromecast_scan_timeout"])
+
+            if self.chromecast_scan_timeout > self.device_request_timeout:
+                raise ValueError("chromecast_scan_timeout should < device_request_timeout")
 
         self._admins = ast.literal_eval(config["bot"]["admins"])
         self._block_size = int(config["bot"]["block_size"])
