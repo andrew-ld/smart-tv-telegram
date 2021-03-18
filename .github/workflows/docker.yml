@@ -1,14 +1,12 @@
 name: Docker multi-arch build and push
 
-on:
-  push:
+on: [push, release]
 
 jobs:
   build:
     name: Build Docker image (linux/386, linux/amd64, linux/arm/v6, linux/arm/v7, linux/arm64, linux/ppc64le)
     runs-on: ubuntu-latest
     env:
-      GHCR_IMAGE_TAG: ghcr.io/${{ github.repository_owner }}/smart-tv-telegram
       DH_IMAGE_TAG: ${{ secrets.DOCKERHUB_USERNAME }}/smart-tv-telegram
 
     steps:
@@ -28,7 +26,6 @@ jobs:
         uses: crazy-max/ghaction-docker-meta@v1
         with:
           images: |
-            ${{ env.GHCR_IMAGE_TAG }}
             ${{ env.DH_IMAGE_TAG }}
           tag-sha: true
 
@@ -38,14 +35,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Login to GHCR
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
         uses: docker/build-push-action@v2
