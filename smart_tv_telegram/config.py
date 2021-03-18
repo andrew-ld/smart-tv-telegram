@@ -71,7 +71,6 @@ class Config:
 
         self._chromecast_enabled = bool(int(config["discovery"]["chromecast_enabled"]))
 
-
         self._xbmc_enabled = bool(int(config["discovery"]["xbmc_enabled"]))
 
         if self._xbmc_enabled:
