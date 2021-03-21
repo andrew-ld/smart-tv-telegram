@@ -11,12 +11,10 @@ import aiohttp
 from . import Device, DeviceFinder, RoutersDefType, DevicePlayerFunction
 from .. import Config
 
-
 __all__ = [
     "XbmcDevice",
     "XbmcDeviceFinder"
 ]
-
 
 _LOGGER = logging.getLogger(__name__)
 _ARGTYPE = typing.Union[typing.AnyStr, int, bool]

@@ -12,14 +12,13 @@ from pyrogram.handlers import MessageHandler, CallbackQueryHandler
 from pyrogram.types import ReplyKeyboardRemove, Message, KeyboardButton, ReplyKeyboardMarkup, CallbackQuery, \
     InlineKeyboardMarkup, InlineKeyboardButton
 
-from . import Config, Mtproto, Http, OnStreamClosed
-from .devices import Device, DeviceFinder, DevicePlayerFunction
+from . import Config, Mtproto, Http, OnStreamClosed, DeviceFinderCollection
+from .devices import Device, DevicePlayerFunction
 from .tools import build_uri, pyrogram_filename, secret_token
 
 __all__ = [
     "Bot"
 ]
-
 
 _REMOVE_KEYBOARD = ReplyKeyboardRemove()
 _CANCEL_BUTTON = "^Cancel"
@@ -92,10 +91,10 @@ class Bot:
     _state_machine: TelegramStateMachine
     _mtproto: Mtproto
     _http: Http
-    _finders: typing.List[DeviceFinder]
+    _finders: DeviceFinderCollection
     _functions: typing.Dict[int, typing.Dict[int, DevicePlayerFunction]]
 
-    def __init__(self, mtproto: Mtproto, config: Config, http: Http, finders: typing.List[DeviceFinder]):
+    def __init__(self, mtproto: Mtproto, config: Config, http: Http, finders: DeviceFinderCollection):
         self._config = config
         self._mtproto = mtproto
         self._http = http
@@ -223,7 +222,7 @@ class Bot:
     async def _new_document(self, _: Client, message: Message):
         devices = []
 
-        for finder in self._finders:
+        for finder in self._finders.get_finders(self._config):
             with async_timeout.timeout(self._config.device_request_timeout + 1):
                 devices.extend(await finder.find(self._config))
 

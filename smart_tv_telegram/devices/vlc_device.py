@@ -6,12 +6,10 @@ import typing
 from . import DeviceFinder, Device, RoutersDefType, DevicePlayerFunction
 from .. import Config
 
-
 __all__ = [
     "VlcDevice",
     "VlcDeviceFinder"
 ]
-
 
 _LOGGER = logging.getLogger(__name__)
 _ENCODING = "utf8"

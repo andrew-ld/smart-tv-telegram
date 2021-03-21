@@ -19,7 +19,6 @@ from pyrogram.raw.types.upload import File
 
 from . import Config
 
-
 __all__ = [
     "Mtproto"
 ]
@@ -61,11 +60,11 @@ class Mtproto:
 
     async def health_check(self):
         if not all(
-            session.is_connected.is_set()
-            for session in (
-                *self._client.media_sessions.values(),
-                self._client.session
-            )
+                session.is_connected.is_set()
+                for session in (
+                        *self._client.media_sessions.values(),
+                        self._client.session
+                )
         ):
             raise ConnectionError()
 

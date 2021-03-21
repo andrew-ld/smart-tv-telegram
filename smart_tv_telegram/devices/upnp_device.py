@@ -11,12 +11,10 @@ from . import Device, DeviceFinder, RoutersDefType, DevicePlayerFunction
 from .. import Config, Mtproto
 from ..tools import ascii_only
 
-
 __all__ = [
     "UpnpDevice",
     "UpnpDeviceFinder"
 ]
-
 
 _AVTRANSPORT_SCHEMA = "urn:schemas-upnp-org:service:AVTransport:1"
 

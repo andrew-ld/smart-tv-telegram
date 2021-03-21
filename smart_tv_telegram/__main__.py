@@ -5,8 +5,9 @@ import argparse
 import os.path
 import typing
 
-from smart_tv_telegram import Http, Mtproto, Config, Bot
-from smart_tv_telegram.devices import FINDERS
+from smart_tv_telegram import Http, Mtproto, Config, Bot, DeviceFinderCollection
+from smart_tv_telegram.devices import UpnpDeviceFinder, ChromecastDeviceFinder, VlcDeviceFinder, \
+    WebDeviceFinder, XbmcDeviceFinder
 
 
 def open_config(parser: argparse.ArgumentParser, arg: str) -> typing.Optional[Config]:
@@ -28,11 +29,10 @@ def open_config(parser: argparse.ArgumentParser, arg: str) -> typing.Optional[Co
     return None
 
 
-async def async_main(config: Config):
-    finders = [f() for f in FINDERS if f.is_enabled(config)]
+async def async_main(config: Config, devices: DeviceFinderCollection):
     mtproto = Mtproto(config)
-    http = Http(mtproto, config, finders)
-    bot = Bot(mtproto, config, http, finders)
+    http = Http(mtproto, config, devices)
+    bot = Bot(mtproto, config, http, devices)
     http.set_on_stream_closed_handler(bot.get_on_stream_closed())
     bot.prepare()
 
@@ -40,12 +40,12 @@ async def async_main(config: Config):
     await http.start()
 
 
-def main(config: Config):
+def main(config: Config, devices: DeviceFinderCollection):
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(async_main(config))
+    loop.run_until_complete(async_main(config, devices))
 
 
-def arg_parser():
+def arg_parser(devices: DeviceFinderCollection):
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--config", type=lambda x: open_config(parser, x), default="config.ini")
     parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1, 2], default=0)
@@ -61,8 +61,15 @@ def arg_parser():
     elif args.verbosity == 2:
         logging.basicConfig(level=logging.DEBUG)
 
-    main(args.config)
+    main(args.config, devices)
 
 
 if __name__ == "__main__":
-    arg_parser()
+    _devices = DeviceFinderCollection()
+    _devices.register_finder(UpnpDeviceFinder())
+    _devices.register_finder(ChromecastDeviceFinder())
+    _devices.register_finder(VlcDeviceFinder())
+    _devices.register_finder(WebDeviceFinder())
+    _devices.register_finder(XbmcDeviceFinder())
+
+    arg_parser(_devices)

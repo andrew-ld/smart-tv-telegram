@@ -8,7 +8,6 @@ from smart_tv_telegram import Config
 from smart_tv_telegram.devices import DeviceFinder, RoutersDefType, Device, RequestHandler, DevicePlayerFunction
 from smart_tv_telegram.tools import secret_token, AsyncDebounce
 
-
 __all__ = [
     "WebDeviceFinder",
     "WebDevice"

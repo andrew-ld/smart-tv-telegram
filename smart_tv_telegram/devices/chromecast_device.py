@@ -7,7 +7,6 @@ from . import Device, DeviceFinder, RoutersDefType, DevicePlayerFunction
 from .. import Config
 from ..tools import run_method_in_executor
 
-
 __all__ = [
     "ChromecastDevice",
     "ChromecastDeviceFinder"

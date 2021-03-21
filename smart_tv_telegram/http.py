@@ -10,10 +10,8 @@ from aiohttp.web_response import Response, StreamResponse
 from pyrogram.raw.types import MessageMediaDocument, Document
 from pyrogram.utils import get_peer_id
 
-from . import Config, Mtproto
-from .devices import DeviceFinder
+from . import Config, Mtproto, DeviceFinderCollection
 from .tools import parse_http_range, mtproto_filename, serialize_token, AsyncDebounce
-
 
 __all__ = [
     "Http",
@@ -30,7 +28,7 @@ class OnStreamClosed(abc.ABC):
 class Http:
     _mtproto: Mtproto
     _config: Config
-    _finders: typing.List[DeviceFinder]
+    _finders: DeviceFinderCollection
     _on_stream_closed: typing.Optional[OnStreamClosed] = None
 
     _tokens: typing.Set[int]
@@ -38,7 +36,7 @@ class Http:
     _stream_debounce: typing.Dict[int, AsyncDebounce]
     _stream_transports: typing.Dict[int, typing.Set[asyncio.Transport]]
 
-    def __init__(self, mtproto: Mtproto, config: Config, finders: typing.List[DeviceFinder]):
+    def __init__(self, mtproto: Mtproto, config: Config, finders: DeviceFinderCollection):
         self._mtproto = mtproto
         self._config = config
         self._finders = finders
@@ -59,7 +57,7 @@ class Http:
         app.add_routes([web.put("/stream/{message_id}/{token}", self._upnp_discovery_handler)])
         app.add_routes([web.get("/healthcheck", self._health_check_handler)])
 
-        for finder in self._finders:
+        for finder in self._finders.get_finders(self._config):
             routers = await finder.get_routers(self._config)
 
             for handler in routers:

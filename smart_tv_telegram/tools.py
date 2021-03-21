@@ -10,7 +10,6 @@ from pyrogram.types import Message as BoxedMessage
 
 from . import Config
 
-
 __all__ = [
     "mtproto_filename",
     "build_uri",
@@ -22,7 +21,6 @@ __all__ = [
     "serialize_token",
     "AsyncDebounce"
 ]
-
 
 _NAMED_MEDIA_TYPES = ("document", "video", "audio", "video_note", "animation")
 _RANGE_REGEX = re.compile(r"bytes=([0-9]+)-([0-9]+)?")
@@ -91,8 +89,8 @@ def pyrogram_filename(message: BoxedMessage) -> str:
 
 def mtproto_filename(message: TlMessage) -> str:
     if not (
-        isinstance(message.media, MessageMediaDocument) and
-        isinstance(message.media.document, Document)
+            isinstance(message.media, MessageMediaDocument) and
+            isinstance(message.media.document, Document)
     ):
         raise TypeError()
 
@@ -117,6 +115,7 @@ def ascii_only(haystack: str) -> str:
 def run_method_in_executor(func):
     async def wraps(*args):
         return await _LOOP.run_in_executor(_EXECUTOR, func, *args)
+
     return wraps
 
 

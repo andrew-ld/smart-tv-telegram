@@ -9,7 +9,7 @@
             const inputPassword = document.getElementById("password");
             const buttonPassword = document.getElementById("password_submit")
 
-            xhttp.onloadend = function() {
+            xhttp.onloadend = function () {
                 if (this.status === 200) {
                     inputPassword.hidden = true;
                     buttonPassword.hidden = true;
@@ -27,7 +27,7 @@
             const player = document.getElementById("player")
             const xhttp = new XMLHttpRequest();
 
-            xhttp.onloadend = function() {
+            xhttp.onloadend = function () {
                 if (this.status === 200) {
                     if (player.hidden) {
                         player.appendChild(source);
@@ -44,7 +44,9 @@
                     location.reload();
                 }
 
-                setTimeout(function () { pollVideo(token); }, 1000);
+                setTimeout(function () {
+                    pollVideo(token);
+                }, 1000);
             };
 
             xhttp.open("GET", "/web/api/poll/" + token, true);

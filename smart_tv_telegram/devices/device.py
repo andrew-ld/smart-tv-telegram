@@ -19,7 +19,6 @@ class RequestHandler(abc.ABC):
 
 RoutersDefType = typing.List[RequestHandler]
 
-
 __all__ = [
     "Device",
     "DeviceFinder",

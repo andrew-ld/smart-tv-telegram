@@ -2,7 +2,6 @@ import ast
 import configparser
 import typing
 
-
 __all__ = [
     "Config"
 ]
