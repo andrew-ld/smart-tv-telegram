@@ -64,7 +64,7 @@ def arg_parser(devices: DeviceFinderCollection):
     main(args.config, devices)
 
 
-if __name__ == "__main__":
+def entry_point():
     _devices = DeviceFinderCollection()
     _devices.register_finder(UpnpDeviceFinder())
     _devices.register_finder(ChromecastDeviceFinder())
@@ -73,3 +73,7 @@ if __name__ == "__main__":
     _devices.register_finder(XbmcDeviceFinder())
 
     arg_parser(_devices)
+
+
+if __name__ == "__main__":
+    entry_point()

@@ -29,7 +29,7 @@ setuptools.setup(
     python_requires=">=3.6",
     entry_points={
         "console_scripts": [
-            "smart_tv_telegram=smart_tv_telegram.__main__:arg_parser",
+            "smart_tv_telegram=smart_tv_telegram.__main__:entry_point",
         ],
     },
     include_package_data=True
