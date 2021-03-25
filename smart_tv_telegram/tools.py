@@ -112,10 +112,7 @@ def ascii_only(haystack: str) -> str:
     return "".join(c for c in haystack if ord(c) < 128)
 
 
-_ExecutorReturnType = typing.TypeVar("_ExecutorReturnType")
-
-
-async def run_method_in_executor(func: typing.Callable[[...], _ExecutorReturnType], *args) -> _ExecutorReturnType:
+async def run_method_in_executor(func, *args):
     return await _LOOP.run_in_executor(_EXECUTOR, func, *args)
 
 
