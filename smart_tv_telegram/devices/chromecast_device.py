@@ -2,9 +2,11 @@ import asyncio
 import typing
 
 import pychromecast
+from pychromecast.const import MESSAGE_TYPE
+from pychromecast.controllers.media import MediaController, TYPE_PAUSE, TYPE_PLAY, TYPE_STOP
 
 from . import Device, DeviceFinder, RoutersDefType, DevicePlayerFunction
-from .. import Config
+from .. import Config, Mtproto
 from ..tools import run_method_in_executor
 
 __all__ = [
@@ -13,12 +15,37 @@ __all__ = [
 ]
 
 
+def _extract_sender(controller: MediaController) -> typing.Callable[[typing.Dict[str, str]], None]:
+    return getattr(controller, "_send_command")
+
+
+async def _send_command(controller: MediaController, command: str):
+    await run_method_in_executor(_extract_sender(controller), {MESSAGE_TYPE: command})
+
+
+class ChromecastGenericDeviceFunction(DevicePlayerFunction):
+    _command: str
+    _device: pychromecast.Chromecast
+
+    def __init__(self, command: str, device: pychromecast.Chromecast):
+        self._command = command
+        self._device = device
+
+    async def get_name(self) -> str:
+        return self._command
+
+    async def handle(self, mtproto: Mtproto):
+        await _send_command(self._device.media_controller, self._command)
+
+    async def is_enabled(self, config: Config):
+        return True
+
+
 class ChromecastDevice(Device):
     _device: pychromecast.Chromecast
 
     def __init__(self, device: typing.Any):
         self._device = device
-        self._device.wait()
 
     def get_device_name(self) -> str:
         return self._device.device.friendly_name
@@ -26,16 +53,23 @@ class ChromecastDevice(Device):
     async def stop(self):
         pass
 
-    @run_method_in_executor
-    def play(self, url: str, title: str):
-        self._device.media_controller.play_media(url, "video/mp4", title=title)
-        self._device.media_controller.block_until_active()
+    async def play(self, url: str, title: str):
+        await run_method_in_executor(self._device.wait)
+
+        if not self._device.is_idle:
+            await run_method_in_executor(self._device.quit_app)
+
+            while self._device.status.app_id is not None:
+                await asyncio.sleep(0.1)
+
+        await run_method_in_executor(self._device.play_media, url, "video/mp4", title)
 
     def get_player_functions(self) -> typing.List[DevicePlayerFunction]:
-        return []
-
-    def __del__(self):
-        self._device.disconnect(blocking=False)
+        return [
+            ChromecastGenericDeviceFunction(TYPE_PAUSE, self._device),
+            ChromecastGenericDeviceFunction(TYPE_PLAY, self._device),
+            ChromecastGenericDeviceFunction(TYPE_STOP, self._device),
+        ]
 
 
 class ChromecastDeviceFinder(DeviceFinder):
@@ -51,7 +85,7 @@ class ChromecastDeviceFinder(DeviceFinder):
             callback=callback)
 
         await asyncio.sleep(config.chromecast_scan_timeout)
-        browser.cancel()
+        await run_method_in_executor(browser.stop_discovery)
         return [ChromecastDevice(device) for device in devices]
 
     @staticmethod

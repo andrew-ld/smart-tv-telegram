@@ -15,7 +15,7 @@ mccabe==0.6.1
 multidict==5.1.0
 protobuf==3.14.0
 pyaes==1.6.1
-PyChromecast==7.7.1
+PyChromecast==9.1.1
 pycodestyle==2.6.0
 pyflakes==2.2.0
 Pyrogram==1.1.5

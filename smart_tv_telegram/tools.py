@@ -24,7 +24,7 @@ __all__ = [
 
 _NAMED_MEDIA_TYPES = ("document", "video", "audio", "video_note", "animation")
 _RANGE_REGEX = re.compile(r"bytes=([0-9]+)-([0-9]+)?")
-_EXECUTOR = concurrent.futures.ThreadPoolExecutor()
+_EXECUTOR = concurrent.futures.ThreadPoolExecutor(max_workers=1)
 _LOOP = asyncio.get_event_loop()
 
 
@@ -112,11 +112,11 @@ def ascii_only(haystack: str) -> str:
     return "".join(c for c in haystack if ord(c) < 128)
 
 
-def run_method_in_executor(func):
-    async def wraps(*args):
-        return await _LOOP.run_in_executor(_EXECUTOR, func, *args)
+_ExecutorReturnType = typing.TypeVar("_ExecutorReturnType")
 
-    return wraps
+
+async def run_method_in_executor(func: typing.Callable[[...], _ExecutorReturnType], *args) -> _ExecutorReturnType:
+    return await _LOOP.run_in_executor(_EXECUTOR, func, *args)
 
 
 def parse_http_range(http_range: str, block_size: int) -> typing.Tuple[int, int, typing.Optional[int]]:
