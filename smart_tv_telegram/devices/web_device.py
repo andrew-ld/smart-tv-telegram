@@ -26,7 +26,10 @@ class WebDevice(Device):
     async def stop(self):
         self._url_to_play = None
 
-    async def play(self, url: str, title: str):
+    async def on_close(self, local_token: int):
+        pass
+
+    async def play(self, url: str, title: str, local_token: int):
         self._url_to_play = url
 
     def get_token(self) -> int:
@@ -54,6 +57,9 @@ class WebDeviceApiRequestRegisterDevice(RequestHandler):
 
     def get_path(self) -> str:
         return "/web/api/register/{password}"
+
+    def get_method(self) -> str:
+        return "GET"
 
     async def _remove_device(self, device: WebDevice):
         try:
@@ -87,6 +93,9 @@ class WebDeviceApiRequestPoll(RequestHandler):
 
     def get_path(self) -> str:
         return "/web/api/poll/{token}"
+
+    def get_method(self) -> str:
+        return "GET"
 
     async def handle(self, request: Request) -> Response:
         try:

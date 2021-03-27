@@ -3,6 +3,10 @@ import typing
 from smart_tv_telegram import Config
 from smart_tv_telegram.devices import DeviceFinder
 
+__all__ = [
+    "DeviceFinderCollection"
+]
+
 
 class DeviceFinderCollection:
     _finders: typing.List[DeviceFinder]

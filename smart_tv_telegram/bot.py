@@ -52,16 +52,30 @@ class SelectStateData(StateData):
 class OnStreamClosedHandler(OnStreamClosed):
     _mtproto: Mtproto
     _functions: typing.Dict[int, typing.Any]
+    _devices: typing.Dict[int, Device]
 
-    def __init__(self, mtproto: Mtproto, functions: typing.Dict[int, typing.Any]):
+    def __init__(self,
+                 mtproto: Mtproto,
+                 functions: typing.Dict[int, typing.Any],
+                 devices: typing.Dict[int, Device]):
         self._mtproto = mtproto
         self._functions = functions
+        self._devices = devices
 
     async def handle(self, remains: float, chat_id: int, message_id: int, local_token: int):
         if local_token in self._functions:
             del self._functions[local_token]
 
+        on_close: typing.Optional[typing.Callable[[int], typing.Coroutine]] = None
+
+        if local_token in self._devices:
+            on_close = self._devices[local_token].on_close
+            del self._devices[local_token]
+
         await self._mtproto.reply_message(message_id, chat_id, f"download closed, {remains:0.2f}% remains")
+
+        if on_close is not None:
+            await on_close(local_token)
 
 
 class TelegramStateMachine:
@@ -93,6 +107,7 @@ class Bot:
     _http: Http
     _finders: DeviceFinderCollection
     _functions: typing.Dict[int, typing.Dict[int, DevicePlayerFunction]]
+    _devices: typing.Dict[int, Device]
 
     def __init__(self, mtproto: Mtproto, config: Config, http: Http, finders: DeviceFinderCollection):
         self._config = config
@@ -101,9 +116,10 @@ class Bot:
         self._finders = finders
         self._state_machine = TelegramStateMachine()
         self._functions = dict()
+        self._devices = dict()
 
     def get_on_stream_closed(self) -> OnStreamClosed:
-        return OnStreamClosedHandler(self._mtproto, self._functions)
+        return OnStreamClosedHandler(self._mtproto, self._functions, self._devices)
 
     def prepare(self):
         admin_filter = filters.chat(self._config.admins) & filters.private
@@ -144,7 +160,7 @@ class Bot:
             return
 
         with async_timeout.timeout(self._config.device_request_timeout) as timeout_context:
-            await device_function.handle(self._mtproto)
+            await device_function.handle()
 
         if timeout_context.expired:
             await message.answer("request timeout")
@@ -180,7 +196,7 @@ class Bot:
             # noinspection PyBroadException
             try:
                 await device.stop()
-                await device.play(uri, data.filename)
+                await device.play(uri, data.filename, local_token)
 
             except Exception as ex:
                 traceback.print_exc()
@@ -191,6 +207,7 @@ class Bot:
                 )
 
             else:
+                self._devices[local_token] = device
                 physical_functions = device.get_player_functions()
                 functions = self._functions[local_token] = dict()
 

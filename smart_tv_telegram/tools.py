@@ -18,6 +18,7 @@ __all__ = [
     "parse_http_range",
     "pyrogram_filename",
     "secret_token",
+    "base_url",
     "serialize_token",
     "AsyncDebounce"
 ]
@@ -35,6 +36,10 @@ async def _debounce_wrap(
 ):
     await asyncio.sleep(timeout)
     await function(*args)
+
+
+def base_url(config: Config) -> str:
+    return f"http://{config.listen_host}:{config.listen_port}"
 
 
 class AsyncDebounce:

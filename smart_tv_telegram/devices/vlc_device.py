@@ -82,7 +82,10 @@ class VlcDevice(Device):
     async def stop(self):
         await self._call("stop")
 
-    async def play(self, url: str, title: str):
+    async def on_close(self, local_token: int):
+        pass
+
+    async def play(self, url: str, title: str, local_token: int):
         await self._call("add", url)
         await self._call("play")
 

@@ -6,7 +6,7 @@ from pychromecast.const import MESSAGE_TYPE
 from pychromecast.controllers.media import MediaController, TYPE_PAUSE, TYPE_PLAY, TYPE_STOP
 
 from . import Device, DeviceFinder, RoutersDefType, DevicePlayerFunction
-from .. import Config, Mtproto
+from .. import Config
 from ..tools import run_method_in_executor
 
 __all__ = [
@@ -34,7 +34,7 @@ class ChromecastGenericDeviceFunction(DevicePlayerFunction):
     async def get_name(self) -> str:
         return self._command
 
-    async def handle(self, mtproto: Mtproto):
+    async def handle(self):
         await _send_command(self._device.media_controller, self._command)
 
     async def is_enabled(self, config: Config):
@@ -53,7 +53,10 @@ class ChromecastDevice(Device):
     async def stop(self):
         pass
 
-    async def play(self, url: str, title: str):
+    async def on_close(self, local_token: int):
+        self._device.disconnect(blocking=False)
+
+    async def play(self, url: str, title: str, local_token: int):
         await run_method_in_executor(self._device.wait)
 
         if not self._device.is_idle:

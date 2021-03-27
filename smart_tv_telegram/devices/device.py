@@ -4,7 +4,7 @@ import typing
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response
 
-from .. import Config, Mtproto
+from .. import Config
 
 
 class RequestHandler(abc.ABC):
@@ -14,6 +14,10 @@ class RequestHandler(abc.ABC):
 
     @abc.abstractmethod
     async def handle(self, request: Request) -> Response:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_method(self) -> str:
         raise NotImplementedError
 
 
@@ -34,7 +38,7 @@ class DevicePlayerFunction(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def handle(self, mtproto: Mtproto):
+    async def handle(self):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -48,7 +52,7 @@ class Device(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def play(self, url: str, title: str):
+    async def play(self, url: str, title: str, local_token: int):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -57,6 +61,10 @@ class Device(abc.ABC):
 
     @abc.abstractmethod
     def get_player_functions(self) -> typing.List[DevicePlayerFunction]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def on_close(self, local_token: int):
         raise NotImplementedError
 
     def __repr__(self):

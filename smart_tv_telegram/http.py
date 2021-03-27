@@ -51,17 +51,17 @@ class Http:
 
     async def start(self):
         app = web.Application()
-        app.add_routes([web.static("/static/", os.path.dirname(__file__) + "/static/")])
-        app.add_routes([web.get("/stream/{message_id}/{token}", self._stream_handler)])
-        app.add_routes([web.options("/stream/{message_id}/{token}", self._upnp_discovery_handler)])
-        app.add_routes([web.put("/stream/{message_id}/{token}", self._upnp_discovery_handler)])
-        app.add_routes([web.get("/healthcheck", self._health_check_handler)])
+        app.router.add_static("/static/", os.path.dirname(__file__) + "/static/")
+        app.router.add_get("/stream/{message_id}/{token}", self._stream_handler)
+        app.router.add_options("/stream/{message_id}/{token}", self._upnp_discovery_handler)
+        app.router.add_put("/stream/{message_id}/{token}", self._upnp_discovery_handler)
+        app.router.add_get("/healthcheck", self._health_check_handler)
 
         for finder in self._finders.get_finders(self._config):
             routers = await finder.get_routers(self._config)
 
             for handler in routers:
-                app.add_routes([web.get(handler.get_path(), handler.handle)])
+                app.router.add_route(handler.get_method(), handler.get_path(), handler.handle)
 
         # noinspection PyProtectedMember
         await web._run_app(app, host=self._config.listen_host, port=self._config.listen_port)
