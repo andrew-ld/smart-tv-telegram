@@ -64,7 +64,6 @@ class UpnpReconnectFunction(DevicePlayerFunction):
         self._service = service
 
     async def handle(self):
-        await _upnp_safe_stop(self._service)
         play = self._service.action("Play")
         await play.async_call(InstanceID=0, Speed="1")
 
@@ -115,10 +114,12 @@ def _player_status(data: bytes) -> UpnpPlayerStatus:
 class DeviceStatus:
     reconnect: UpnpReconnectFunction
     playing: bool
+    errored: bool
 
-    def __init__(self, reconnect: UpnpReconnectFunction, playing: bool = False):
+    def __init__(self, reconnect: UpnpReconnectFunction, playing: bool = False, errored: bool = False):
         self.reconnect = reconnect
         self.playing = playing
+        self.errored = errored
 
 
 class UpnpNotifyServer(RequestHandler):
@@ -159,6 +160,10 @@ class UpnpNotifyServer(RequestHandler):
             device.playing = True
 
         if status == UpnpPlayerStatus.ERROR and device.playing:
+            device.errored = True
+
+        if device.errored and status == UpnpPlayerStatus.NOTHING:
+            device.errored = False
             device.playing = False
             await device.reconnect.handle()
 
