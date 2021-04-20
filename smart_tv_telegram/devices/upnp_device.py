@@ -53,8 +53,15 @@ async def _upnp_safe_stop(service: async_upnp_client.UpnpService):
     try:
         await stop.async_call(InstanceID=0)
     except UpnpError as error:
-        if "transition not available" not in str(error).lower():
-            raise error
+        normalized_error = str(error).lower()
+
+        if "transition not available" in normalized_error:
+            return
+
+        if "action stop failed" in normalized_error:
+            return
+
+        raise error
 
 
 class UpnpReconnectFunction(DevicePlayerFunction):
