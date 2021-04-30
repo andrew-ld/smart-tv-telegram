@@ -1,4 +1,4 @@
-# smart-tv-telegram [![PyPI](https://img.shields.io/pypi/v/smart-tv-telegram)](https://pypi.org/project/smart-tv-telegram/) [![PyPI - License](https://img.shields.io/pypi/l/smart-tv-telegram)](https://github.com/andrew-ld/smart-tv-telegram/blob/master/LICENSE) [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/andrewhyphenld/smart-tv-telegram)](https://hub.docker.com/r/andrewhyphenld/smart-tv-telegram)
+# smart-tv-telegram [![PyPI](https://img.shields.io/pypi/v/smart-tv-telegram)](https://pypi.org/project/smart-tv-telegram/) [![PyPI - License](https://img.shields.io/pypi/l/smart-tv-telegram)](https://github.com/andrew-ld/smart-tv-telegram/blob/master/LICENSE) [Docker](https://hub.docker.com/r/andrewhyphenld/smart-tv-telegram)
 A Telegram Bot to stream content on your smart TV (also Chromecast, FireTV and other UPnP device)
 
 ### Demonstration video
