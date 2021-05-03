@@ -75,18 +75,13 @@ class Http:
         return local_token in self._tokens
 
     @staticmethod
-    def _write_http_range_headers(
-            result: typing.Union[Response, StreamResponse],
-            read_after: int,
-            size: int,
-            max_size: int
-    ):
+    def _write_http_range_headers(result: StreamResponse, read_after: int,  size: int, max_size: int):
         result.headers.setdefault("Content-Range", f"bytes {read_after}-{max_size}/{size}")
         result.headers.setdefault("Accept-Ranges", "bytes")
         result.headers.setdefault("Content-Length", str(size))
 
     @staticmethod
-    def _write_upnp_headers(result: typing.Union[Response, StreamResponse]):
+    def _write_access_control_headers(result: StreamResponse):
         result.headers.setdefault("Content-Type", "video/mp4")
         result.headers.setdefault("Access-Control-Allow-Origin", "*")
         result.headers.setdefault("Access-Control-Allow-Methods", "GET, OPTIONS")
@@ -96,7 +91,7 @@ class Http:
         result.headers.setdefault("contentFeatures.dlna.org", "DLNA.ORG_OP=01;DLNA.ORG_CI=0;")
 
     @staticmethod
-    def _write_filename_header(result: typing.Union[Response, StreamResponse], filename: str):
+    def _write_filename_header(result: StreamResponse, filename: str):
         result.headers.setdefault("Content-Disposition", f'inline; filename="{quote(filename)}"')
 
     async def _health_check_handler(self, _: Request) -> typing.Optional[Response]:
@@ -108,7 +103,7 @@ class Http:
 
     async def _upnp_discovery_handler(self, _: Request) -> typing.Optional[Response]:
         result = Response(status=200)
-        self._write_upnp_headers(result)
+        self._write_access_control_headers(result)
         return result
 
     def _feed_timeout(self, message_id: int, chat_id: int, local_token: int, size: int):
@@ -232,7 +227,7 @@ class Http:
             filename = f"file_{message.media.document.id}"
 
         self._write_filename_header(stream, filename)
-        self._write_upnp_headers(stream)
+        self._write_access_control_headers(stream)
 
         await stream.prepare(request)
 
