@@ -272,6 +272,8 @@ class UpnpDevice(Device):
         if task is not None:
             await task.close()
 
+        self._notify_handler.remove_device(local_token)
+
     async def play(self, url: str, title: str, local_token: int):
         set_url = self._service.action("SetAVTransportURI")
         meta = _DLL_METADATA.format(title=escape(ascii_only(title)), url=escape(url), flags=_VIDEO_FLAGS)
