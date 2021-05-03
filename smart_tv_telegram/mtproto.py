@@ -1,5 +1,6 @@
 import asyncio
 import functools
+import logging
 import os
 import pickle
 import typing
@@ -59,13 +60,12 @@ class Mtproto:
         return message
 
     async def health_check(self):
-        if not all(
-                session.is_connected.is_set()
-                for session in (
-                        *self._client.media_sessions.values(),
-                        self._client.session
-                )
-        ):
+        if not all(x.is_connected.is_set() for x in self._client.media_sessions.values()):
+            logging.log(logging.ERROR, "media session not connected")
+            raise ConnectionError()
+
+        if not self._client.session.is_connected.is_set():
+            logging.log(logging.ERROR, "main session not connected")
             raise ConnectionError()
 
     async def get_block(self, message: Message, offset: int, block_size: int) -> bytes:
