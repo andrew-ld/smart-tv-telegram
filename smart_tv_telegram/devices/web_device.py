@@ -1,4 +1,4 @@
-import functools
+import time
 import typing
 
 from aiohttp.web_request import Request
@@ -6,7 +6,7 @@ from aiohttp.web_response import Response
 
 from smart_tv_telegram import Config
 from smart_tv_telegram.devices import DeviceFinder, RoutersDefType, Device, RequestHandler, DevicePlayerFunction
-from smart_tv_telegram.tools import secret_token, AsyncDebounce
+from smart_tv_telegram.tools import secret_token
 
 __all__ = [
     "WebDeviceFinder",
@@ -17,23 +17,32 @@ __all__ = [
 class WebDevice(Device):
     _url_to_play: typing.Optional[str] = None
     _device_name: str
-    _token: int
+    _remote_token: int
+    _devices: typing.Dict[int, 'WebDevice']
+    _manipulation_timestamp: float
 
-    def __init__(self, device_name: str, token: int):
+    def __init__(self, device_name: str, token: int, devices: typing.Dict[int, 'WebDevice']):
         self._device_name = device_name
-        self._token = token
+        self._remote_token = token
+        self._devices = devices
+        self._manipulation_timestamp = time.time()
 
     async def stop(self):
         self._url_to_play = None
 
     async def on_close(self, local_token: int):
-        pass
+        self._devices.pop(self._remote_token, None)
 
     async def play(self, url: str, title: str, local_token: int):
         self._url_to_play = url
 
+    def manipulate_timestamp(self) -> float:
+        old = self._manipulation_timestamp
+        self._manipulation_timestamp = time.time()
+        return old
+
     def get_token(self) -> int:
-        return self._token
+        return self._remote_token
 
     def get_device_name(self) -> str:
         return self._device_name
@@ -49,9 +58,9 @@ class WebDevice(Device):
 
 class WebDeviceApiRequestRegisterDevice(RequestHandler):
     _config: Config
-    _devices: typing.Dict[WebDevice, AsyncDebounce]
+    _devices: typing.Dict[int, WebDevice]
 
-    def __init__(self, config: Config, devices: typing.Dict[WebDevice, AsyncDebounce]):
+    def __init__(self, config: Config, devices: typing.Dict[int, WebDevice]):
         self._config = config
         self._devices = devices
 
@@ -61,58 +70,43 @@ class WebDeviceApiRequestRegisterDevice(RequestHandler):
     def get_method(self) -> str:
         return "GET"
 
-    async def _remove_device(self, device: WebDevice):
-        try:
-            del self._devices[device]
-        except KeyError:
-            pass
-
     async def handle(self, request: Request) -> Response:
         password = request.match_info["password"]
 
         if password != self._config.web_ui_password:
             return Response(status=403)
 
-        token = secret_token()
-        device = WebDevice(f"web @({request.remote})", token)
-
-        remove = functools.partial(self._remove_device, device)
-        self._devices[device] = debounce = AsyncDebounce(remove, self._config.request_gone_timeout)
-        debounce.update_args()
-
-        return Response(status=200, body=str(token))
+        remote_token = secret_token()
+        self._devices[remote_token] = WebDevice(f"web @({request.remote})", remote_token, self._devices)
+        return Response(status=200, body=str(remote_token))
 
 
 class WebDeviceApiRequestPoll(RequestHandler):
     _config: Config
-    _devices: typing.Dict[WebDevice, AsyncDebounce]
+    _devices: typing.Dict[int, WebDevice]
 
-    def __init__(self, config: Config, devices: typing.Dict[WebDevice, AsyncDebounce]):
+    def __init__(self, config: Config, devices: typing.Dict[int, WebDevice]):
         self._devices = devices
         self._config = config
 
     def get_path(self) -> str:
-        return "/web/api/poll/{token}"
+        return "/web/api/poll/{remote_token}"
 
     def get_method(self) -> str:
         return "GET"
 
     async def handle(self, request: Request) -> Response:
         try:
-            token = int(request.match_info["token"])
+            remote_token = int(request.match_info["remote_token"])
         except ValueError:
             return Response(status=400)
 
         try:
-            device = next(
-                d
-                for d in self._devices.keys()
-                if d.get_token() == token
-            )
-        except StopIteration:
+            device = self._devices[remote_token]
+        except KeyError:
             return Response(status=404)
 
-        self._devices[device].update_args()
+        device.manipulate_timestamp()
         url_to_play = device.get_url_to_play()
 
         if url_to_play is None:
@@ -122,13 +116,20 @@ class WebDeviceApiRequestPoll(RequestHandler):
 
 
 class WebDeviceFinder(DeviceFinder):
-    _devices: typing.Dict[WebDevice, AsyncDebounce]
+    _devices: typing.Dict[int, WebDevice]
 
     def __init__(self):
         self._devices = dict()
 
     async def find(self, config: Config) -> typing.List[Device]:
-        return list(self._devices.keys())
+        devices = list(self._devices.values())
+        min_timestamp = time.time() - config.device_request_timeout
+
+        for device in devices:
+            if device.manipulate_timestamp() < min_timestamp:
+                self._devices.pop(device.get_token(), None)
+
+        return list(self._devices.values())
 
     @staticmethod
     def is_enabled(config: Config) -> bool:
