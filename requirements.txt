@@ -23,7 +23,7 @@ requests==2.25.1
 six==1.15.0
 TgCrypto==1.2.2
 typing-extensions==3.7.4.3
-urllib3==1.26.4
+urllib3==1.26.5
 voluptuous==0.12.1
 wrapt==1.12.1
 yarl==1.6.3
