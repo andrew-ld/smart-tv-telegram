@@ -63,7 +63,7 @@ def arg_parser(devices: DeviceFinderCollection):
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--config", type=lambda x: open_config(parser, x), default="config.ini")
     parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1, 2], default=0)
-    parser.add_argument("-hc", "--healthcheck", type=bool, default=False, const=True)
+    parser.add_argument("-hc", "--healthcheck", type=bool, default=False, const=True, nargs="?")
 
     args = parser.parse_args()
 
