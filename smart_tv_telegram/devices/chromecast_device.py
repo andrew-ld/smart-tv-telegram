@@ -48,7 +48,7 @@ class ChromecastDevice(Device):
         self._device = device
 
     def get_device_name(self) -> str:
-        return self._device.device.friendly_name
+        return self._device.name
 
     async def stop(self):
         pass

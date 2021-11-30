@@ -3,7 +3,10 @@ import configparser
 import logging
 import argparse
 import os.path
+import sys
+import traceback
 import typing
+import urllib.request
 
 from smart_tv_telegram import Http, Mtproto, Config, Bot, DeviceFinderCollection
 from smart_tv_telegram.devices import UpnpDeviceFinder, ChromecastDeviceFinder, VlcDeviceFinder, \
@@ -45,10 +48,22 @@ def main(config: Config, devices: DeviceFinderCollection):
     loop.run_until_complete(async_main(config, devices))
 
 
+def health_check(config: Config):
+    # noinspection PyBroadException
+    try:
+        urllib.request.urlopen(f"http://{config.listen_host}:{config.listen_port}/healthcheck")
+    except Exception:
+        traceback.print_exc()
+        return 1
+
+    return 0
+
+
 def arg_parser(devices: DeviceFinderCollection):
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--config", type=lambda x: open_config(parser, x), default="config.ini")
     parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1, 2], default=0)
+    parser.add_argument("-hc", "--healthcheck", type=bool, default=False, const=True)
 
     args = parser.parse_args()
 
@@ -60,6 +75,9 @@ def arg_parser(devices: DeviceFinderCollection):
 
     elif args.verbosity == 2:
         logging.basicConfig(level=logging.DEBUG)
+
+    if args.healthcheck:
+        sys.exit(health_check(args.config))
 
     main(args.config, devices)
 

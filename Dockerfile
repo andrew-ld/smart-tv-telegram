@@ -14,8 +14,6 @@ WORKDIR /app
 
 RUN rm -rf /tmp/setup
 
-COPY healthcheck.py /
-
-HEALTHCHECK CMD ["/healthcheck.py", "/app/config.ini"]
+HEALTHCHECK CMD ["smart_tv_telegram", "--healthcheck"]
 
 CMD ["smart_tv_telegram"]
