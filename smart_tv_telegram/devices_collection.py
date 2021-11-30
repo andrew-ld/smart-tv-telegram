@@ -12,7 +12,7 @@ class DeviceFinderCollection:
     _finders: typing.List[DeviceFinder]
 
     def __init__(self):
-        self._finders = list()
+        self._finders = []
 
     def register_finder(self, finder: DeviceFinder):
         self._finders.append(finder)

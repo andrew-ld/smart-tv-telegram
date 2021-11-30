@@ -115,8 +115,8 @@ class Bot:
         self._http = http
         self._finders = finders
         self._state_machine = TelegramStateMachine()
-        self._functions = dict()
-        self._devices = dict()
+        self._functions = {}
+        self._devices = {}
 
     def get_on_stream_closed(self) -> OnStreamClosed:
         return OnStreamClosedHandler(self._mtproto, self._functions, self._devices)
@@ -209,7 +209,7 @@ class Bot:
             else:
                 self._devices[local_token] = device
                 physical_functions = device.get_player_functions()
-                functions = self._functions[local_token] = dict()
+                functions = self._functions[local_token] = {}
 
                 if physical_functions:
                     buttons = []

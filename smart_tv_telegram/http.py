@@ -42,9 +42,9 @@ class Http:
         self._finders = finders
 
         self._tokens = set()
-        self._downloaded_blocks = dict()
-        self._stream_debounce = dict()
-        self._stream_transports = dict()
+        self._downloaded_blocks = {}
+        self._stream_debounce = {}
+        self._stream_transports = {}
 
     def set_on_stream_closed_handler(self, handler: OnStreamClosed):
         self._on_stream_closed = handler

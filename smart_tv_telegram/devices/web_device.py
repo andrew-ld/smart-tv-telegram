@@ -119,7 +119,7 @@ class WebDeviceFinder(DeviceFinder):
     _devices: typing.Dict[int, WebDevice]
 
     def __init__(self):
-        self._devices = dict()
+        self._devices = {}
 
     async def find(self, config: Config) -> typing.List[Device]:
         devices = list(self._devices.values())

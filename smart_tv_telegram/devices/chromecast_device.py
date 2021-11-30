@@ -77,7 +77,7 @@ class ChromecastDevice(Device):
 
 class ChromecastDeviceFinder(DeviceFinder):
     async def find(self, config: Config) -> typing.List[Device]:
-        devices: typing.List[pychromecast.Chromecast] = list()
+        devices: typing.List[pychromecast.Chromecast] = []
 
         def callback(device: pychromecast.Chromecast):
             devices.append(device)

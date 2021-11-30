@@ -133,7 +133,7 @@ class UpnpNotifyServer(RequestHandler):
     _devices: typing.Dict[int, DeviceStatus]
 
     def __init__(self):
-        self._devices = dict()
+        self._devices = {}
 
     def add_device(self, device: DeviceStatus, local_token: int):
         self._devices[local_token] = device
