@@ -253,7 +253,7 @@ class Bot:
                 message,
                 States.SELECT,
                 SelectStateData(
-                    message.message_id,
+                    message.id,
                     str(filename),
                     devices.copy()
                 )

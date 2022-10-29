@@ -47,7 +47,7 @@ class Mtproto:
 
     @alru_cache(cache_exceptions=False)
     async def get_message(self, message_id: int) -> Message:
-        messages = await self._client.send(GetMessages(id=[InputMessageID(id=message_id)]))
+        messages = await self._client.invoke(GetMessages(id=[InputMessageID(id=message_id)]))
 
         if not messages.messages:
             raise ValueError("wrong message_id")
@@ -86,7 +86,7 @@ class Mtproto:
 
         while not isinstance(result, File):
             try:
-                result = await session.send(request, sleep_threshold=0)
+                result = await session.invoke(request, sleep_threshold=0)
             except FloodWait:  # file floodwait is fake
                 await asyncio.sleep(self._config.file_fake_fw_wait)
 
@@ -95,7 +95,7 @@ class Mtproto:
     async def start(self):
         await self._client.start()
 
-        config = await self._client.send(GetConfig())
+        config = await self._client.invoke(GetConfig())
         dc_ids = [x.id for x in config.dc_options]
         keys_path = self._config.session_name + ".keys"
 
@@ -109,7 +109,7 @@ class Mtproto:
 
             if dc_id != await self._client.storage.dc_id():
                 if dc_id not in keys:
-                    exported_auth = await self._client.send(ExportAuthorization(dc_id=dc_id))
+                    exported_auth = await self._client.invoke(ExportAuthorization(dc_id=dc_id))
 
                     auth = pyrogram.session.Auth(self._client, dc_id, False)
                     auth_key = await auth.create()
@@ -117,7 +117,7 @@ class Mtproto:
                     session = session(auth_key)
                     await session.start()
 
-                    await session.send(ImportAuthorization(id=exported_auth.id, bytes=exported_auth.bytes))
+                    await session.invoke(ImportAuthorization(id=exported_auth.id, bytes=exported_auth.bytes))
                     keys[dc_id] = session.auth_key
 
                 else:
