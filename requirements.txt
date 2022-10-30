@@ -1,6 +1,6 @@
 aiohttp==3.8.3
 aiosignal==1.2.0
-async_lru @ git+https://github.com/aio-libs/async-lru@3574af7691371015c47faf77e0abf8c7b06a3cdc 
+async_lru==1.0.3
 async-timeout==4.0.2
 async-upnp-client==0.22.12
 attrs==22.1.0
