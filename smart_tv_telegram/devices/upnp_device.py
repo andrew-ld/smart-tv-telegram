@@ -26,7 +26,7 @@ __all__ = [
 
 _AVTRANSPORT_SCHEMA = "urn:schemas-upnp-org:service:AVTransport:1"
 
-_VIDEO_FLAGS = "01700000000000000000000000000000"
+_VIDEO_FLAGS = "41700000000000000000000000000000"
 
 _DLL_METADATA = """
 <DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/"
