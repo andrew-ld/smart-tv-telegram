@@ -111,7 +111,13 @@ class ChromecastDevice(Device):
 class ChromecastDeviceFinder(DeviceFinder):
     async def find(self, config: Config) -> typing.List[Device]:
         devices, browser = await run_method_in_executor(pychromecast.get_listed_chromecasts, timeout=config.chromecast_scan_timeout)
+
+        if not devices:
+            await run_method_in_executor(browser.stop_discovery)
+            return []
+
         ref_counted_broswer = RefCountedPyChromecastBrowser(len(devices), browser)
+
         return [ChromecastDevice(device, ref_counted_broswer) for device in devices]
 
     @staticmethod
