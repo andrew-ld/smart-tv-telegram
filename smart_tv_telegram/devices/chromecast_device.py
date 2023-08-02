@@ -110,7 +110,7 @@ class ChromecastDevice(Device):
 
 class ChromecastDeviceFinder(DeviceFinder):
     async def find(self, config: Config) -> typing.List[Device]:
-        devices, browser = await run_method_in_executor(pychromecast.get_listed_chromecasts, timeout=config.chromecast_scan_timeout)
+        devices, browser = await run_method_in_executor(pychromecast.get_chromecasts, timeout=config.chromecast_scan_timeout, blocking=True)
 
         if not devices:
             await run_method_in_executor(browser.stop_discovery)
