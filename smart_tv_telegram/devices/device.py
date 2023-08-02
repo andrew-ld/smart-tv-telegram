@@ -67,6 +67,10 @@ class Device(abc.ABC):
     def on_close(self, local_token: int):
         raise NotImplementedError
 
+    @abc.abstractmethod
+    async def release(self):
+        raise NotImplementedError
+
     def __repr__(self):
         return self.get_device_name()
 

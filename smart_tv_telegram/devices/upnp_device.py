@@ -295,6 +295,9 @@ class UpnpDevice(Device):
             UpnpPauseFunction(self._service)
         ]
 
+    async def release(self):
+        pass
+
 
 class UpnpDeviceFinder(DeviceFinder):
     _notify_handler: UpnpNotifyServer

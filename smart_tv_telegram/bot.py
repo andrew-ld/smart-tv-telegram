@@ -67,15 +67,21 @@ class OnStreamClosedHandler(OnStreamClosed):
             del self._functions[local_token]
 
         on_close: typing.Optional[typing.Callable[[int], typing.Coroutine]] = None
+        release: typing.Optional[typing.Callable[[], typing.Coroutine]] = None
 
         if local_token in self._devices:
-            on_close = self._devices[local_token].on_close
+            device = self._devices[local_token]
             del self._devices[local_token]
+            on_close = device.on_close
+            release = device.release
 
         await self._mtproto.reply_message(message_id, chat_id, f"download closed, {remains:0.2f}% remains")
 
         if on_close is not None:
             await on_close(local_token)
+
+        if release is not None:
+            await release()
 
 
 class TelegramStateMachine:
@@ -186,7 +192,14 @@ class Bot:
             )
         except StopIteration:
             await reply("Wrong device")
+
+            for device in data.devices:
+                await device.release()
+
             return
+
+        for device in filter(lambda d: d is not device, data.devices):
+            await device.release()
 
         async with async_timeout.timeout(self._config.device_request_timeout) as timeout_context:
             token = secret_token()
@@ -237,6 +250,14 @@ class Bot:
             await reply("Timeout while communicate with the device")
 
     async def _new_document(self, _: Client, message: Message):
+        state_type, state_data = self._state_machine.get_state(message)
+
+        if state_type == States.SELECT and isinstance(state_data, SelectStateData):
+            for device in state_data.devices:
+                await device.release()
+
+        self._state_machine.set_state(message, States.NOTHING, False)
+
         devices = []
 
         for finder in self._finders.get_finders(self._config):

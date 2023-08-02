@@ -1,5 +1,6 @@
 import asyncio
 import concurrent.futures
+import functools
 import re
 import secrets
 import typing
@@ -116,8 +117,9 @@ def ascii_only(haystack: str) -> str:
     return "".join(c for c in haystack if ord(c) < 128)
 
 
-async def run_method_in_executor(func, *args):
-    return await asyncio.get_event_loop().run_in_executor(_EXECUTOR, func, *args)
+async def run_method_in_executor(func, *args, **kwargs):
+    partial_function = functools.partial(func, *args, **kwargs)
+    return await asyncio.get_event_loop().run_in_executor(_EXECUTOR, partial_function)
 
 
 def parse_http_range(http_range: str, block_size: int) -> typing.Tuple[int, int, typing.Optional[int]]:

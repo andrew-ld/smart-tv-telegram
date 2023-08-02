@@ -140,6 +140,9 @@ class XbmcDevice(Device):
     def get_player_functions(self) -> typing.List[DevicePlayerFunction]:
         return []
 
+    async def release(self):
+        pass
+
 
 class XbmcDeviceFinder(DeviceFinder):
     async def find(self, config: Config) -> typing.List[Device]:
