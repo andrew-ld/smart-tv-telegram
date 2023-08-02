@@ -30,6 +30,7 @@ class RefCountedPyChromecastBrowser:
     obj: pychromecast.CastBrowser
 
     def __init__(self, default_ref_count: int, obj: pychromecast.CastBrowser):
+        assert default_ref_count > 0
         self._ref_count = default_ref_count
         self.obj = obj
 
