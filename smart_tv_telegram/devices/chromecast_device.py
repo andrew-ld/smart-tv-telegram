@@ -9,7 +9,7 @@ from pychromecast.controllers.media import MediaController, TYPE_PAUSE, TYPE_PLA
 
 from . import Device, DeviceFinder, RoutersDefType, DevicePlayerFunction
 from .. import Config
-from ..tools import run_method_in_executor, ascii_only
+from ..tools import run_method_in_executor
 
 __all__ = [
     "ChromecastDevice",
@@ -87,7 +87,7 @@ class ChromecastDevice(Device):
             while self._device.status.app_id is not None:
                 await asyncio.sleep(0.1)
 
-        await run_method_in_executor(pychromecast.quick_play.quick_play, self._device, ascii_only(title), dict(media_id=url))
+        await run_method_in_executor(pychromecast.quick_play.quick_play, self._device, "default_media_receiver", dict(media_id=url))
 
     def get_player_functions(self) -> typing.List[DevicePlayerFunction]:
         return [
