@@ -2,6 +2,7 @@ import asyncio
 import typing
 
 import pychromecast
+import zeroconf
 
 from pychromecast.const import MESSAGE_TYPE
 from pychromecast.controllers.media import MediaController, TYPE_PAUSE, TYPE_PLAY, TYPE_STOP
@@ -110,8 +111,18 @@ class ChromecastDevice(Device):
 
 
 class ChromecastDeviceFinder(DeviceFinder):
+    zeroconf: zeroconf.Zeroconf
+
+    def __init__(self):
+        self._zero_conf = zeroconf.Zeroconf()
+
     async def find(self, config: Config) -> typing.List[Device]:
-        devices, browser = await run_method_in_executor(pychromecast.get_chromecasts, timeout=config.chromecast_scan_timeout, blocking=True)
+        devices, browser = await run_method_in_executor(
+            pychromecast.get_chromecasts,
+            timeout=config.chromecast_scan_timeout,
+            blocking=True,
+            zeroconf_instance=self._zero_conf
+        )
 
         if not devices:
             await run_method_in_executor(browser.stop_discovery)
