@@ -79,6 +79,7 @@ class ChromecastDevice(Device):
         self._device.disconnect(blocking=False)
 
     async def play(self, url: str, title: str, local_token: int):
+        await run_method_in_executor(self._device.connect)
         await run_method_in_executor(self._device.wait)
 
         if not self._device.is_idle:
