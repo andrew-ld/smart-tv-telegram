@@ -2,7 +2,6 @@ import asyncio
 import typing
 
 import pychromecast
-import pychromecast.quick_play
 
 from pychromecast.const import MESSAGE_TYPE
 from pychromecast.controllers.media import MediaController, TYPE_PAUSE, TYPE_PLAY, TYPE_STOP
@@ -88,7 +87,7 @@ class ChromecastDevice(Device):
             while self._device.status.app_id is not None:
                 await asyncio.sleep(0.1)
 
-        await run_method_in_executor(pychromecast.quick_play.quick_play, self._device, "default_media_receiver", dict(media_id=url))
+        await run_method_in_executor(self._device.play_media, url, "video/mp4", title)
 
     def get_player_functions(self) -> typing.List[DevicePlayerFunction]:
         return [
