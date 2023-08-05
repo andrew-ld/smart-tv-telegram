@@ -98,6 +98,8 @@ class ChromecastDevice(Device):
         ]
 
     async def release(self):
+        self._device.disconnect(blocking=False)
+
         broswer = self._broswer
         self._broswer = None
 
