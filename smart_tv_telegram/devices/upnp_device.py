@@ -8,9 +8,10 @@ import xml.etree.ElementTree
 from ipaddress import IPv4Address
 from xml.sax.saxutils import escape
 
-from async_upnp_client.client import UpnpService, UpnpDevice as UpnpServiceDevice
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response
+
+from async_upnp_client.client import UpnpService, UpnpDevice as UpnpServiceDevice
 from async_upnp_client.aiohttp import AiohttpRequester
 from async_upnp_client.client_factory import UpnpFactory
 from async_upnp_client.event_handler import UpnpEventHandler
