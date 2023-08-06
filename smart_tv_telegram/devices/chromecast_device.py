@@ -60,7 +60,7 @@ class ChromecastDevice(Device):
         await run_method_in_executor(self._device.stop)
 
     async def play(self, url: str, title: str, local_token: int):
-        await run_method_in_executor(self._device.play_url, url,)
+        await run_method_in_executor(self._device.play_url, url, title=title)
 
     def get_player_functions(self) -> typing.List[DevicePlayerFunction]:
         return [
