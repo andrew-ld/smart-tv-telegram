@@ -5,14 +5,12 @@ import io
 import typing
 import xml.etree
 import xml.etree.ElementTree
-from ipaddress import IPv4Address
 from xml.sax.saxutils import escape
 
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response
-
-from async_upnp_client.client import UpnpService, UpnpDevice as UpnpServiceDevice
 from async_upnp_client.aiohttp import AiohttpRequester
+from async_upnp_client.client import UpnpService, UpnpDevice as UpnpServiceDevice
 from async_upnp_client.client_factory import UpnpFactory
 from async_upnp_client.event_handler import UpnpEventHandler
 from async_upnp_client.exceptions import UpnpError
@@ -309,13 +307,11 @@ class UpnpDeviceFinder(DeviceFinder):
         devices = []
         requester = AiohttpRequester()
         factory = UpnpFactory(requester)
-        source_ip = IPv4Address("0.0.0.0")
 
         async def on_response(data: typing.Mapping[str, typing.Any]) -> None:
             devices.append(await factory.async_create_device(data.get("LOCATION")))
 
         await async_search(search_target=_AVTRANSPORT_SCHEMA,
-                           source=source_ip,
                            timeout=config.upnp_scan_timeout,
                            async_callback=on_response)
 
