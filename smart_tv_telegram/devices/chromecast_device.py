@@ -25,7 +25,7 @@ class ChromecastPlayFunction(DevicePlayerFunction):
         await run_method_in_executor(self._device.play)
 
     async def is_enabled(self, config: Config):
-        pass
+        return True
 
 
 class ChromecastPauseFunction(DevicePlayerFunction):
@@ -41,7 +41,7 @@ class ChromecastPauseFunction(DevicePlayerFunction):
         await run_method_in_executor(self._device.pause)
 
     async def is_enabled(self, config: Config):
-        pass
+        return True
 
 
 class ChromecastDevice(Device):
