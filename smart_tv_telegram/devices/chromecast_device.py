@@ -80,7 +80,7 @@ class ChromecastDeviceFinder(DeviceFinder):
         cached_devices: typing.List[catt.api.CattDevice] = []
 
         for found_device in found_devices:
-            cached_devices.append(self._devices_cache.setdefault(found_device.uuid, found_device))
+            cached_devices.append(self._devices_cache.setdefault(found_device.ip_addr, found_device))
 
         return [ChromecastDevice(device) for device in cached_devices]
 
