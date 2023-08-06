@@ -24,7 +24,6 @@ Pyrogram==2.0.106
 PySocks==1.7.1
 python-didl-lite==1.3.2
 requests==2.31.0
-smart-tv-telegram==1.3.6.dev0
 TgCrypto==1.2.5
 urllib3==2.0.4
 voluptuous==0.13.1
