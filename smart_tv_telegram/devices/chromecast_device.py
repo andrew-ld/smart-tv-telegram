@@ -70,9 +70,19 @@ class ChromecastDevice(Device):
 
 
 class ChromecastDeviceFinder(DeviceFinder):
+    _devices_cache: typing.Dict[str, catt.api.CattDevice]
+
+    def __init__(self):
+        self._devices_cache = {}
+
     async def find(self, config: Config) -> typing.List[Device]:
-        devices = await run_method_in_executor(catt.api.discover)
-        return [ChromecastDevice(device) for device in devices]
+        found_devices: typing.List[catt.api.CattDevice] = await run_method_in_executor(catt.api.discover)
+        cached_devices: typing.List[catt.api.CattDevice] = []
+
+        for found_device in found_devices:
+            cached_devices.append(self._devices_cache.setdefault(found_device.uuid, found_device))
+
+        return [ChromecastDevice(device) for device in cached_devices]
 
     @staticmethod
     def is_enabled(config: Config) -> bool:
