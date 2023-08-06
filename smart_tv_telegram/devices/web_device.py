@@ -55,9 +55,6 @@ class WebDevice(Device):
     def get_player_functions(self) -> typing.List[DevicePlayerFunction]:
         return []
 
-    async def release(self):
-        pass
-
 
 class WebDeviceApiRequestRegisterDevice(RequestHandler):
     _config: Config

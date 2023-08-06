@@ -92,9 +92,6 @@ class VlcDevice(Device):
     def get_player_functions(self) -> typing.List[DevicePlayerFunction]:
         return []
 
-    async def release(self):
-        pass
-
 
 class VlcDeviceFinder(DeviceFinder):
     async def find(self, config: Config) -> typing.List[Device]:
