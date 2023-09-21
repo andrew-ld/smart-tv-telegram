@@ -1,4 +1,5 @@
 import abc
+import asyncio
 import enum
 import functools
 import html
@@ -243,8 +244,11 @@ class Bot:
         devices = []
 
         for finder in self._finders.get_finders(self._config):
-            with async_timeout.timeout(self._config.device_request_timeout + 1):
-                devices.extend(await finder.find(self._config))
+            try:
+                with async_timeout.timeout(self._config.device_request_timeout + 1):
+                    devices.extend(await finder.find(self._config))
+            except asyncio.CancelledError:
+                pass
 
         if devices:
             try:
