@@ -45,7 +45,7 @@ class Mtproto:
             reply_to_message_id=message_id
         )
 
-    @alru_cache(cache_exceptions=False)
+    @alru_cache()
     async def get_message(self, message_id: int) -> Message:
         messages = await self._client.invoke(GetMessages(id=[InputMessageID(id=message_id)]))
 

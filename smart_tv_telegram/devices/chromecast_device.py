@@ -1,9 +1,6 @@
-import asyncio
 import typing
 
-import pychromecast
-from pychromecast.const import MESSAGE_TYPE
-from pychromecast.controllers.media import MediaController, TYPE_PAUSE, TYPE_PLAY, TYPE_STOP
+import catt.api
 
 from . import Device, DeviceFinder, RoutersDefType, DevicePlayerFunction
 from .. import Config
@@ -15,36 +12,42 @@ __all__ = [
 ]
 
 
-def _extract_sender(controller: MediaController) -> typing.Callable[[typing.Dict[str, str]], None]:
-    return getattr(controller, "_send_command")
+class ChromecastPlayFunction(DevicePlayerFunction):
+    _device: catt.api.CattDevice
 
-
-async def _send_command(controller: MediaController, command: str):
-    await run_method_in_executor(_extract_sender(controller), {MESSAGE_TYPE: command})
-
-
-class ChromecastGenericDeviceFunction(DevicePlayerFunction):
-    _command: str
-    _device: pychromecast.Chromecast
-
-    def __init__(self, command: str, device: pychromecast.Chromecast):
-        self._command = command
+    def __init__(self, device: catt.api.CattDevice):
         self._device = device
 
     async def get_name(self) -> str:
-        return self._command
+        return "PLAY"
 
     async def handle(self):
-        await _send_command(self._device.media_controller, self._command)
+        await run_method_in_executor(self._device.play)
+
+    async def is_enabled(self, config: Config):
+        return True
+
+
+class ChromecastPauseFunction(DevicePlayerFunction):
+    _device: catt.api.CattDevice
+
+    def __init__(self, device: catt.api.CattDevice):
+        self._device = device
+
+    async def get_name(self) -> str:
+        return "PAUSE"
+
+    async def handle(self):
+        await run_method_in_executor(self._device.pause)
 
     async def is_enabled(self, config: Config):
         return True
 
 
 class ChromecastDevice(Device):
-    _device: pychromecast.Chromecast
+    _device: catt.api.CattDevice
 
-    def __init__(self, device: typing.Any):
+    def __init__(self, device: catt.api.CattDevice):
         self._device = device
 
     def get_device_name(self) -> str:
@@ -54,42 +57,32 @@ class ChromecastDevice(Device):
         pass
 
     async def on_close(self, local_token: int):
-        self._device.disconnect(blocking=False)
+        await run_method_in_executor(self._device.stop)
 
     async def play(self, url: str, title: str, local_token: int):
-        await run_method_in_executor(self._device.wait)
-
-        if not self._device.is_idle:
-            await run_method_in_executor(self._device.quit_app)
-
-            while self._device.status.app_id is not None:
-                await asyncio.sleep(0.1)
-
-        await run_method_in_executor(self._device.play_media, url, "video/mp4", title)
+        await run_method_in_executor(self._device.play_url, url, title=title)
 
     def get_player_functions(self) -> typing.List[DevicePlayerFunction]:
         return [
-            ChromecastGenericDeviceFunction(TYPE_PAUSE, self._device),
-            ChromecastGenericDeviceFunction(TYPE_PLAY, self._device),
-            ChromecastGenericDeviceFunction(TYPE_STOP, self._device),
+            ChromecastPlayFunction(self._device),
+            ChromecastPauseFunction(self._device)
         ]
 
 
 class ChromecastDeviceFinder(DeviceFinder):
+    _devices_cache: typing.Dict[str, catt.api.CattDevice]
+
+    def __init__(self):
+        self._devices_cache = {}
+
     async def find(self, config: Config) -> typing.List[Device]:
-        devices: typing.List[pychromecast.Chromecast] = []
+        found_devices: typing.List[catt.api.CattDevice] = await run_method_in_executor(catt.api.discover)
+        cached_devices: typing.List[catt.api.CattDevice] = []
 
-        def callback(device: pychromecast.Chromecast):
-            devices.append(device)
+        for found_device in found_devices:
+            cached_devices.append(self._devices_cache.setdefault(found_device.ip_addr, found_device))
 
-        browser = pychromecast.get_chromecasts(
-            timeout=config.chromecast_scan_timeout,
-            blocking=False,
-            callback=callback)
-
-        await asyncio.sleep(config.chromecast_scan_timeout)
-        await run_method_in_executor(browser.stop_discovery)
-        return [ChromecastDevice(device) for device in devices]
+        return [ChromecastDevice(device) for device in cached_devices]
 
     @staticmethod
     def is_enabled(config: Config) -> bool:

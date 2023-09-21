@@ -69,8 +69,9 @@ class OnStreamClosedHandler(OnStreamClosed):
         on_close: typing.Optional[typing.Callable[[int], typing.Coroutine]] = None
 
         if local_token in self._devices:
-            on_close = self._devices[local_token].on_close
+            device = self._devices[local_token]
             del self._devices[local_token]
+            on_close = device.on_close
 
         await self._mtproto.reply_message(message_id, chat_id, f"download closed, {remains:0.2f}% remains")
 
@@ -237,6 +238,8 @@ class Bot:
             await reply("Timeout while communicate with the device")
 
     async def _new_document(self, _: Client, message: Message):
+        self._state_machine.set_state(message, States.NOTHING, False)
+
         devices = []
 
         for finder in self._finders.get_finders(self._config):

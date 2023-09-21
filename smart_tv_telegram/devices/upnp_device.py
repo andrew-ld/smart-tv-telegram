@@ -1,18 +1,19 @@
 import asyncio
 import enum
-import typing
 import html
 import io
-from ipaddress import IPv4Address
-from xml.sax.saxutils import escape
-import xml.etree.ElementTree
+import typing
 import xml.etree
+import xml.etree.ElementTree
+from xml.sax.saxutils import escape
 
-import async_upnp_client
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response
-from async_upnp_client import UpnpFactory, UpnpError, UpnpEventHandler
 from async_upnp_client.aiohttp import AiohttpRequester
+from async_upnp_client.client import UpnpService, UpnpDevice as UpnpServiceDevice
+from async_upnp_client.client_factory import UpnpFactory
+from async_upnp_client.event_handler import UpnpEventHandler
+from async_upnp_client.exceptions import UpnpError
 from async_upnp_client.search import async_search
 
 from . import Device, DeviceFinder, RoutersDefType, DevicePlayerFunction, RequestHandler
@@ -47,7 +48,7 @@ _DLL_METADATA = """
 _STATUS_TAG = "{urn:schemas-upnp-org:metadata-1-0/AVT/}TransportStatus"
 
 
-async def _upnp_safe_stop(service: async_upnp_client.UpnpService):
+async def _upnp_safe_stop(service: UpnpService):
     stop = service.action("Stop")
 
     try:
@@ -65,9 +66,9 @@ async def _upnp_safe_stop(service: async_upnp_client.UpnpService):
 
 
 class UpnpReconnectFunction(DevicePlayerFunction):
-    _service: async_upnp_client.UpnpService
+    _service: UpnpService
 
-    def __init__(self, service: async_upnp_client.UpnpService):
+    def __init__(self, service: UpnpService):
         self._service = service
 
     async def handle(self):
@@ -178,9 +179,9 @@ class UpnpNotifyServer(RequestHandler):
 
 
 class UpnpPlayFunction(DevicePlayerFunction):
-    _service: async_upnp_client.UpnpService
+    _service: UpnpService
 
-    def __init__(self, service: async_upnp_client.UpnpService):
+    def __init__(self, service: UpnpService):
         self._service = service
 
     async def get_name(self) -> str:
@@ -195,9 +196,9 @@ class UpnpPlayFunction(DevicePlayerFunction):
 
 
 class UpnpPauseFunction(DevicePlayerFunction):
-    _service: async_upnp_client.UpnpService
+    _service: UpnpService
 
-    def __init__(self, service: async_upnp_client.UpnpService):
+    def __init__(self, service: UpnpService):
         self._service = service
 
     async def get_name(self) -> str:
@@ -212,13 +213,13 @@ class UpnpPauseFunction(DevicePlayerFunction):
 
 
 class SubscribeTask:
-    _service: async_upnp_client.UpnpService
+    _service: UpnpService
     _task: typing.Optional[asyncio.Task]
     _event_handler: UpnpEventHandler
 
     def __init__(self,
-                 device: async_upnp_client.UpnpDevice,
-                 service: async_upnp_client.UpnpService,
+                 device: UpnpServiceDevice,
+                 service: UpnpService,
                  url: str):
         self._service = service
         self._task = None
@@ -247,13 +248,13 @@ class SubscribeTask:
 
 
 class UpnpDevice(Device):
-    _device: async_upnp_client.UpnpDevice
-    _service: async_upnp_client.UpnpService
+    _device: UpnpServiceDevice
+    _service: UpnpService
     _config: Config
     _subscribe_task: typing.Optional[SubscribeTask]
     _notify_handler: UpnpNotifyServer
 
-    def __init__(self, device: async_upnp_client.UpnpDevice, config: Config, notify_handler: UpnpNotifyServer):
+    def __init__(self, device: UpnpServiceDevice, config: Config, notify_handler: UpnpNotifyServer):
         self._device = device
         self._service = self._device.service(_AVTRANSPORT_SCHEMA)
         self._config = config
@@ -306,13 +307,11 @@ class UpnpDeviceFinder(DeviceFinder):
         devices = []
         requester = AiohttpRequester()
         factory = UpnpFactory(requester)
-        source_ip = IPv4Address("0.0.0.0")
 
         async def on_response(data: typing.Mapping[str, typing.Any]) -> None:
             devices.append(await factory.async_create_device(data.get("LOCATION")))
 
-        await async_search(service_type=_AVTRANSPORT_SCHEMA,
-                           source_ip=source_ip,
+        await async_search(search_target=_AVTRANSPORT_SCHEMA,
                            timeout=config.upnp_scan_timeout,
                            async_callback=on_response)
 
