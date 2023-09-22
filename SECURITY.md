@@ -1,16 +1,21 @@
-# Security Policy
+# Reporting Security Issues
+If you believe you have found a security vulnerability, please report it to us through coordinated disclosure.
 
-## Supported Versions
+Please do not report security vulnerabilities through public GitHub issues, discussions, or pull requests.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| latest commit  | :white_check_mark: |
-| any other version   | :x:                |
+Instead, please send an email to andrew-ld@protonmail.com
 
-## Well-known bugs
-- we know the files are being transmitted via http, we're highly screwed since the tvs don't support https.
-- there is no token to request the files: and after so much they can do mitm (read the point above)
-- docker only goes if I use the host network, tell the pychromecast people how to do it without it, and I do it.
+Please include as much of the information listed below as you can to help us better understand and resolve the issue:
 
-## How to contact me
-on github somewhere you can click to contact me, but I don't give money anyway so don't bust my balls.
+    The type of issue
+    Full paths of source file(s) related to the manifestation of the issue
+    The location of the affected source code (tag/branch/commit or direct URL)
+    Any special configuration required to reproduce the issue
+    Step-by-step instructions to reproduce the issue
+    Proof-of-concept or exploit code (if possible)
+    Impact of the issue, including how an attacker might exploit the issue
+
+This information will help us triage your report more quickly.
+
+# Well-known weakness
+- Media are transmitted via http by design, as many devices lack support for https
