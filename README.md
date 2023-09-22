@@ -15,17 +15,32 @@ A Telegram Bot to stream content on your smart TV (also Chromecast, FireTV and o
 
 Note: Chromecast (1st, 2nd and 3rd Gen.) [only supports H.264 and VP8 video codecs](https://developers.google.com/cast/docs/media#video_codecs)
 
-Note: Most LG TVs with WebOS have an incorrect UPnP implementation, throw it in the trash and buy a new TV
+Note: Most LG TVs with WebOS have an incorrect UPnP implementation
 
-## How-to setup
+## How-to setup (Release from pypi)
 Make sure you have an updated version of python, only the latest version will be supported
 
-(currently it also works on Python 3.6)
+- Install smart-tv-telegram from pip
+- Download config.ini.example as config.ini
+- Edit config.ini
+- Start from python entrypoint
+
+```bash
+python3 -m pip install --upgrade smart-tv-telegram
+curl https://raw.githubusercontent.com/andrew-ld/smart-tv-telegram/master/config.ini.example -o config.ini
+nano config.ini
+smart_tv_telegram -c config.ini -v 1
+```
+
+## How-to setup (Manual build)
+Make sure you have an updated version of python, only the latest version will be supported
 
 - Download the repository
-- Install python dependencies from requirements.txt
+- Build wheel package
+- Install package
 - Copy config.ini.example to config.ini
 - Edit config.ini
+- Start from python entrypoint
 
 ```bash
 git clone https://github.com/andrew-ld/smart-tv-telegram
@@ -41,8 +56,8 @@ smart_tv_telegram -c config.ini -v 1
 ## How-to setup (Docker)
 - Copy config.ini.example to config.ini
 - Edit config.ini
-- Build Docker
-- Start Docker
+- Build Docker image
+- Start Docker container
 
 ```bash
 cp config.ini.example config.ini
