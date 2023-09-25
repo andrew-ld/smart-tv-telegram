@@ -29,5 +29,5 @@ urllib3==2.0.4
 voluptuous==0.13.1
 websockets==11.0.3
 yarl==1.9.2
-yt-dlp==2023.7.6
+yt-dlp==2023.9.24
 zeroconf==0.74.0
