@@ -60,11 +60,11 @@ class Mtproto:
         return message
 
     async def health_check(self):
-        if not all(x.is_connected.is_set() for x in self._client.media_sessions.values()):
+        if not all(x.is_started.is_set() for x in self._client.media_sessions.values()):
             logging.log(logging.ERROR, "media session not connected")
             raise ConnectionError()
 
-        if not self._client.session.is_connected.is_set():
+        if not self._client.session.is_started.is_set():
             logging.log(logging.ERROR, "main session not connected")
             raise ConnectionError()
 
