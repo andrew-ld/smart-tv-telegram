@@ -6,6 +6,8 @@ WORKDIR /tmp/setup
 
 COPY . .
 
+RUN python3 -m pip install setuptools
+
 RUN python3 setup.py sdist bdist_wheel
 
 RUN python3 -m pip install --no-cache-dir dist/*.whl
