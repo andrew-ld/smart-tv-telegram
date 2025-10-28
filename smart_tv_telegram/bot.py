@@ -3,9 +3,9 @@ import asyncio
 import enum
 import functools
 import html
+import sys
 import traceback
 import typing
-import sys
 
 if sys.version_info >= (3, 11):
     from asyncio import timeout

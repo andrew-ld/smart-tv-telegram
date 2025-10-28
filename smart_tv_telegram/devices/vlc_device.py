@@ -52,7 +52,7 @@ class VlcDevice(Device):
     def get_device_name(self) -> str:
         return f"vlc @{self._params.host}"
 
-    async def _call(self, method: str, *args: typing.AnyStr):
+    async def _call(self, method: str, *args: str):
         reader, writer = await asyncio.open_connection(self._params.host, self._params.port)
         headers = await reader.read(io.DEFAULT_BUFFER_SIZE)
 

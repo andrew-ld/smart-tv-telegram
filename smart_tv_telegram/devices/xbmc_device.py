@@ -16,8 +16,9 @@ __all__ = [
     "XbmcDeviceFinder"
 ]
 
+MethodCallArgType = typing.Union[str, int, bool]
+
 _LOGGER = logging.getLogger(__name__)
-_ARGTYPE = typing.Union[typing.AnyStr, int, bool]
 
 _JSON_HEADERS = {"content-type": "application/json"}
 _JSONRPC_VERSION = "2.0"
@@ -34,7 +35,7 @@ class XbmcDeviceParams:
     _username: typing.Optional[str] = None
     _password: typing.Optional[str] = None
 
-    def __init__(self, params: typing.Dict[str, typing.AnyStr]):
+    def __init__(self, params: typing.Dict[str, str]):
         self._host = params["host"]
         self._port = params["port"]
 
@@ -79,7 +80,7 @@ class XbmcDevice(Device):
     async def on_close(self, local_token: int):
         pass
 
-    async def _call(self, method: str, **args: typing.Union[_ARGTYPE, typing.Mapping[str, _ARGTYPE]]):
+    async def _call(self, method: str, **args: typing.Union[MethodCallArgType, typing.Mapping[str, MethodCallArgType]]):
         data = {
             _ATTR_JSONRPC: _JSONRPC_VERSION,
             _ATTR_METHOD: method,

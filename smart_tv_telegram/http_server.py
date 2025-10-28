@@ -207,7 +207,6 @@ class Http:
             return Response(status=404)
 
         size = message.media.document.size
-        file_reference = message.media.document.file_reference
         read_after = offset + data_to_skip
 
         if read_after > size:
