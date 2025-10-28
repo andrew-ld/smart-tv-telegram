@@ -1,7 +1,7 @@
 from .config import Config
 from .mtproto import Mtproto
 from .devices_collection import DeviceFinderCollection
-from .http import Http, OnStreamClosed
+from .http_server import Http, OnStreamClosed
 from .bot import Bot
 
 __version__ = "1.3.9"

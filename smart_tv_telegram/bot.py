@@ -5,8 +5,13 @@ import functools
 import html
 import traceback
 import typing
+import sys
 
-import async_timeout
+if sys.version_info >= (3, 11):
+    from asyncio import timeout
+else:
+    from async_timeout import timeout
+
 from pyrogram import Client, filters
 from pyrogram.filters import create
 from pyrogram.handlers import MessageHandler, CallbackQueryHandler
@@ -161,10 +166,10 @@ class Bot:
             await message.answer("function not enabled")
             return
 
-        with async_timeout.timeout(self._config.device_request_timeout) as timeout_context:
+        async with timeout(self._config.device_request_timeout) as timeout_context:
             await device_function.handle()
 
-        if timeout_context.expired:
+        if timeout_context.expired():
             await message.answer("request timeout")
         else:
             await message.answer("done")
@@ -190,7 +195,7 @@ class Bot:
             await reply("Wrong device")
             return
 
-        async with async_timeout.timeout(self._config.device_request_timeout) as timeout_context:
+        async with timeout(self._config.device_request_timeout) as timeout_context:
             token = secret_token()
             local_token = self._http.add_remote_token(data.msg_id, token)
             uri = build_uri(self._config, data.msg_id, token)
@@ -235,7 +240,7 @@ class Bot:
                 else:
                     await reply(f"Playing file <code>{data.msg_id}</code>")
 
-        if timeout_context.expired:
+        if timeout_context.expired():
             await reply("Timeout while communicate with the device")
 
     async def _new_document(self, _: Client, message: Message):
@@ -245,7 +250,7 @@ class Bot:
 
         for finder in self._finders.get_finders(self._config):
             try:
-                with async_timeout.timeout(self._config.device_request_timeout + 1):
+                async with timeout(self._config.device_request_timeout + 1):
                     devices.extend(await finder.find(self._config))
             except asyncio.CancelledError:
                 pass

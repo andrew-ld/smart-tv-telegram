@@ -207,6 +207,7 @@ class Http:
             return Response(status=404)
 
         size = message.media.document.size
+        file_reference = message.media.document.file_reference
         read_after = offset + data_to_skip
 
         if read_after > size:
@@ -256,3 +257,6 @@ class Http:
             offset = new_offset
 
         await stream.write_eof()
+        stream.force_close()
+
+        return stream

@@ -29,8 +29,6 @@ def open_config(parser: argparse.ArgumentParser, arg: str) -> typing.Optional[Co
     except configparser.Error as err:
         parser.error(f"generic configparser error:\n{str(err)}")
 
-    return None
-
 
 async def async_main(config: Config, devices: DeviceFinderCollection):
     mtproto = Mtproto(config)
