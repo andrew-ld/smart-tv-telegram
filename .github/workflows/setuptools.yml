@@ -25,7 +25,7 @@ jobs:
     
     - name: build and install wheel package
       run: |
-        pip install wheel
+        pip install wheel setuptools
         python setup.py sdist bdist_wheel
         find dist -name "*.whl" -type f -exec pip install {} \;
       shell: bash
