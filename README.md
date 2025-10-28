@@ -36,7 +36,7 @@ smart_tv_telegram -c config.ini -v 1
 Make sure you have an updated version of python, only the latest version will be supported
 
 - Download the repository
-- Build wheel and setuptools package
+- Build wheel package
 - Install package
 - Copy config.ini.example to config.ini
 - Edit config.ini

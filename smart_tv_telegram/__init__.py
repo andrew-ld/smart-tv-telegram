@@ -4,8 +4,8 @@ from .devices_collection import DeviceFinderCollection
 from .http_server import Http, OnStreamClosed
 from .bot import Bot
 
-__version__ = "1.3.9"
-__version_info__ = ("1", "3", "9")
+__version__ = "1.4.0"
+__version_info__ = ("1", "4", "0")
 __author__ = "https://github.com/andrew-ld"
 
 __all__ = [
