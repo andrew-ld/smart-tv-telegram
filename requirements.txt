@@ -17,7 +17,7 @@ idna==3.11
 ifaddr==0.2.0
 multidict==6.7.0
 propcache==0.4.1
-protobuf==6.33.0
+protobuf==6.33.5
 pyaes==1.6.1
 PyChromecast==14.0.9
 pymediainfo-pyroblack==6.1.1
